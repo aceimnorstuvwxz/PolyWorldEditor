@@ -204,10 +204,10 @@ public class Demo : MonoBehaviour {
 		return new Vector3 (originX + dx*0.5f, originY + dh*0.5f, originZ + dy*0.5f);
 	}
 
-	void AddVertex(Vector3 node) {
+	void AddVertex(Vector3 node, Color co) {
 		_vertices.Add (node);
 //		_uvs.Add (node.toUV (_voxels.GetLength(0), _voxels.GetLength(2)));
-		_colors.Add (Color.blue);
+		_colors.Add (co);
 	}
 	
 	void AddTriangle(Vector3 a, Vector3 b, Vector3 c)
@@ -217,15 +217,15 @@ public class Demo : MonoBehaviour {
 			Debug.Assert(false);
 		}
 
+		Color co = Color.gray;//new Color(Random.value, Random.value, Random.value);
+		_triangles.Add (_vertices.Count);
+		AddVertex(a,co);
 		
 		_triangles.Add (_vertices.Count);
-		AddVertex(a);
+		AddVertex(b,co);
 		
 		_triangles.Add (_vertices.Count);
-		AddVertex(b);
-		
-		_triangles.Add (_vertices.Count);
-		AddVertex(c);
+		AddVertex(c,co);
 
 	}
 
