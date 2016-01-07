@@ -243,5 +243,13 @@ public class Demo : MonoBehaviour {
 		Debug.Log ("AddCube");
 		int cubeHalfWidth = 5;
 
+		for (int x = -cubeHalfWidth; x<= cubeHalfWidth; x++) {
+			for (int y = -cubeHalfWidth; y <= cubeHalfWidth; y++) {
+				for (int z = -cubeHalfWidth; z <= cubeHalfWidth; z++){
+					SetEditSpacePoint(x,y,z,true);
+				}
+			}
+		}
+
 	}
 }
