@@ -10,16 +10,20 @@ public class Demo : MonoBehaviour {
 //	private List<Vector2> _uvs;
 //	private List<int> _triangles;
 
-	private bool[,,] _editSpace;
+	private int[,,] _editSpace; // 0 ? -> not solid, 1-N ->solid, with material index
 
-	void SetEditSpacePoint(int x, int y, int z, bool value)
+	void SetEditSpacePoint(int x, int y, int z, int value)
 	{
 		_editSpace [x + EDITOR_SPACE_HALF_WIDTH, y + EDITOR_SPACE_HALF_WIDTH, z + EDITOR_SPACE_HALF_WIDTH] = value;
 	}
 
 	int GetEditSpacePoint(int x, int y, int z)
 	{
-		return _editSpace [x + EDITOR_SPACE_HALF_WIDTH, y + EDITOR_SPACE_HALF_WIDTH, z + EDITOR_SPACE_HALF_WIDTH] ? 1:0;
+		return _editSpace [x + EDITOR_SPACE_HALF_WIDTH, y + EDITOR_SPACE_HALF_WIDTH, z + EDITOR_SPACE_HALF_WIDTH];
+	}
+	int IsEditSpacePointSolid(int x, int y, int z)
+	{
+		return _editSpace [x + EDITOR_SPACE_HALF_WIDTH, y + EDITOR_SPACE_HALF_WIDTH, z + EDITOR_SPACE_HALF_WIDTH] > 0 ? 1 : 0;
 	}
 
 
@@ -59,7 +63,7 @@ public class Demo : MonoBehaviour {
 
 	void Start () {
 		int width = 2 * EDITOR_SPACE_HALF_WIDTH + 1;
-		_editSpace = new bool[width, width, width];	
+		_editSpace = new int[width, width, width];	
 	}
 	
 	// Update is called once per frame
@@ -111,14 +115,14 @@ public class Demo : MonoBehaviour {
 	{
 		int caseValue = 0;
 		
-		caseValue = caseValue * 2 + GetEditSpacePoint (x + 1, y, z + 1);//  _voxels[x+1,y+1,h];//v7
-		caseValue = caseValue * 2 + GetEditSpacePoint (x + 1, y + 1, z + 1); // _voxels[x+1,y+1,h+1];//v6
-		caseValue = caseValue * 2 + GetEditSpacePoint (x, y + 1, z + 1); //_voxels[x,y+1,h+1];//v5
-		caseValue = caseValue * 2 + GetEditSpacePoint (x, y, z + 1);// _voxels[x,y+1,h];//v4
-		caseValue = caseValue * 2 + GetEditSpacePoint (x + 1, y, z);//_voxels[x+1,y,h];//v3
-		caseValue = caseValue * 2 + GetEditSpacePoint (x + 1, y + 1, z);//_voxels[x+1,y,h+1];//v2
-		caseValue = caseValue * 2 + GetEditSpacePoint (x, y + 1, z);//_voxels[x,y,h+1];//v1
-		caseValue = caseValue * 2 + GetEditSpacePoint (x, y, z);//_voxels[x,y,h];//v0
+		caseValue = caseValue * 2 + IsEditSpacePointSolid (x + 1, y, z + 1);//  _voxels[x+1,y+1,h];//v7
+		caseValue = caseValue * 2 + IsEditSpacePointSolid (x + 1, y + 1, z + 1); // _voxels[x+1,y+1,h+1];//v6
+		caseValue = caseValue * 2 + IsEditSpacePointSolid (x, y + 1, z + 1); //_voxels[x,y+1,h+1];//v5
+		caseValue = caseValue * 2 + IsEditSpacePointSolid (x, y, z + 1);// _voxels[x,y+1,h];//v4
+		caseValue = caseValue * 2 + IsEditSpacePointSolid (x + 1, y, z);//_voxels[x+1,y,h];//v3
+		caseValue = caseValue * 2 + IsEditSpacePointSolid (x + 1, y + 1, z);//_voxels[x+1,y,h+1];//v2
+		caseValue = caseValue * 2 + IsEditSpacePointSolid (x, y + 1, z);//_voxels[x,y,h+1];//v1
+		caseValue = caseValue * 2 + IsEditSpacePointSolid (x, y, z);//_voxels[x,y,h];//v0
 		
 		int[,] caseTriangles = _marchingCubes.getCaseTriangles (caseValue);
 		for (int i = 0; i < caseTriangles.GetLength(0); i++) {
@@ -236,7 +240,7 @@ public class Demo : MonoBehaviour {
 
 		for (int x = -EDITOR_SPACE_HALF_WIDTH; x <= EDITOR_SPACE_HALF_WIDTH; x++) {
 			for (int z = -EDITOR_SPACE_HALF_WIDTH; z <= EDITOR_SPACE_HALF_WIDTH; z++) {
-				SetEditSpacePoint(x,planeYPos,z,true);
+				SetEditSpacePoint(x,planeYPos,z,1);
 			}
 		}
 	}
@@ -249,7 +253,7 @@ public class Demo : MonoBehaviour {
 		for (int x = -cubeHalfWidth; x<= cubeHalfWidth; x++) {
 			for (int y = -cubeHalfWidth; y <= cubeHalfWidth; y++) {
 				for (int z = -cubeHalfWidth; z <= cubeHalfWidth; z++){
-					SetEditSpacePoint(x,y,z,true);
+					SetEditSpacePoint(x,y,z,2);
 				}
 			}
 		}
@@ -298,7 +302,7 @@ public class Demo : MonoBehaviour {
 		if (GetEditSpacePoint (x, y, z) == 1) {
 //			AddBrush(point + 0.1f*normal, normal);
 		} else {
-			SetEditSpacePoint (x, y, z, true);
+			SetEditSpacePoint (x, y, z, 3);
 			RefreshMesh ();
 		}
 	}
