@@ -244,7 +244,8 @@ public class Demo : MonoBehaviour {
 		}
 
 		Color co = materialIndex == 1 ? Color.gray :
-			materialIndex == 2 ? Color.white : materialIndex == 3 ? Color.magenta : Color.red;//new Color(Random.value, Random.value, Random.value);
+			materialIndex == 2 ? Color.white : materialIndex == 3 ? Color.magenta :
+				materialIndex == 0 ? Color.green: Color.red;//new Color(Random.value, Random.value, Random.value);
 		_triangles.Add (_vertices.Count);
 		AddVertex(a,co);
 		
@@ -337,8 +338,116 @@ public class Demo : MonoBehaviour {
 	{
 		for (int caseValue = 0; caseValue <256; caseValue++) {
 			int[,] caseTriangles = _marchingCubes.getCaseTriangles (caseValue);
+
+			int[,] groupTrignales = new int[4,14];
+
+			for (int i = 0; i <4; i++) {
+				groupTrignales[i,0] = 0;
+				groupTrignales[i,1] = 0;
+
+			}
+
+			int groupNum = 0;
+
 			for (int i = 0; i < caseTriangles.GetLength(0); i++) {
 				int edgeA = caseTriangles[i,0];
+				int edgeB = caseTriangles[i,1];
+				int edgeC = caseTriangles[i,2];
+
+				bool newGroup =  true;
+				int group2put = 0;
+				for (int j = 0; j < groupNum; j++) {
+					for (int k = 0; k < groupTrignales[j,1]; k++) {
+						int v = groupTrignales[j,k+2];
+						if (edgeA == v || edgeB == v || edgeC == v) {
+							newGroup = false;
+							group2put = j;
+							break;
+						}
+					}
+				}
+
+				if (newGroup) {
+					groupTrignales[groupNum,1] = 3;
+					groupTrignales[groupNum,2] = edgeA;
+					groupTrignales[groupNum,3] = edgeB;
+					groupTrignales[groupNum,4] = edgeC;
+					groupNum++;
+				} else {
+					{
+						int value = edgeA;
+						bool toPut = true;
+						for (int j = 0; j < groupTrignales[group2put,1]; j++) {
+							if (groupTrignales[group2put,j+2] == value) {
+								toPut = false;
+								break;
+							}
+						}
+						if (toPut) {
+							groupTrignales[group2put,groupTrignales[group2put,1]+2] = value;
+							groupTrignales[group2put,1]++;
+						}
+					}
+					{
+						int value = edgeB;
+						bool toPut = true;
+						for (int j = 0; j < groupTrignales[group2put,1]; j++) {
+							if (groupTrignales[group2put,j+2] == value) {
+								toPut = false;
+								break;
+							}
+						}
+						if (toPut) {
+							groupTrignales[group2put,groupTrignales[group2put,1]+2] = value;
+							groupTrignales[group2put,1]++;
+						}
+					}
+					{
+						int value = edgeB;
+						bool toPut = true;
+						for (int j = 0; j < groupTrignales[group2put,1]; j++) {
+							if (groupTrignales[group2put,j+2] == value) {
+								toPut = false;
+								break;
+							}
+						}
+						if (toPut) {
+							groupTrignales[group2put,groupTrignales[group2put,1]+2] = value;
+							groupTrignales[group2put,1]++;
+						}
+					}
+				}
+			}
+
+
+			// calc per group 
+			for (int i = 0; i < groupNum; i++) {
+				Vector3 sum = Vector3.zero;
+				for (int j = 0; j < groupTrignales[i,1]; j++) {
+					sum += Edge2Position(groupTrignales[i,2+j],0,0,0);
+				}
+				Vector3 center = sum/(groupTrignales[i,1] * 1f);
+				
+				int caseValueIndex = 1;
+				int minVoxelPoint = 0;
+				float minDistance = 100000f;
+				for (int j = 0; j < 8; j++) {
+					caseValueIndex = 1 << j;
+					if ((caseValueIndex & caseValue) > 0) {
+						IntVector3 voxelPosInt =  VoxelPointPosition(j);
+						float distance = (voxelPosInt.ToFloat() - center).sqrMagnitude;
+						if (distance < minDistance) {
+							minDistance = distance;
+							minVoxelPoint = j;
+						}
+					}
+				}
+				groupTrignales[i,0] = minVoxelPoint;
+			}
+
+			for (int i = 0; i < caseTriangles.GetLength(0); i++) {
+				int edgeA = caseTriangles[i,0];
+				/*
 				int edgeB = caseTriangles[i,1];
 				int edgeC = caseTriangles[i,2];
 				
@@ -356,9 +465,20 @@ public class Demo : MonoBehaviour {
 							minVoxelPoint = j;
 						}
 					}
+				}*/
+
+				for (int j = 0; j < groupNum; j++) {
+					for (int k = 0; k < groupTrignales[j,1]; k++) {
+						if (edgeA == groupTrignales[j, 2+k]) {
+							_nearestVoxelPointTable[caseValue,i] = groupTrignales[j,0];
+							break;
+						}
+					}
 				}
-				_nearestVoxelPointTable[caseValue,i] = minVoxelPoint;
+
 			}
+
+
 		}
 	}
 }
