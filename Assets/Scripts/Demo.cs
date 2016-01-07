@@ -57,6 +57,7 @@ public class Demo : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		MouseSelection ();
+		SceneRotation ();
 	}
 
 	
@@ -475,10 +476,23 @@ public class Demo : MonoBehaviour {
 						}
 					}
 				}
-
 			}
-
-
 		}
+	}
+
+
+	void SceneRotation()
+	{
+//		if (Input.GetMouseButton (1) || Input.GetKey("e")) {
+//			float x = Input.GetAxis("Mouse X");
+//			float y = Input.GetAxis("Mouse Y");
+//			Debug.Log("x"+x.ToString() + " y"+y.ToString());
+//			float rotate_scale = 10f;
+////			transform.Rotate(new Vector3(y*rotate_scale, -x*rotate_scale,0));
+//
+//			transform.RotateAround(Vector3.zero, Vector3.right, y*rotate_scale);
+//			transform.RotateAround(Vector3.zero, Vector3.up, -x*rotate_scale);
+//
+//		}
 	}
 }
