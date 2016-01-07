@@ -502,4 +502,6 @@ public class TerrainGenerator : MonoBehaviour {
 //		}
 
 	}
+
+
 }

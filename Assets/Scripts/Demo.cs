@@ -28,34 +28,21 @@ public class Demo : MonoBehaviour {
 
 
 	// VoxelPoint, the meta points of marching cubes
-	class VoxelPoint
+	class IntVector3
 	{
 		// direction relation is same to unity scene editor
 		public int x;
 		public int y;
 		public int z;
 
-		public VoxelPoint(int x, int y, int z) {
+		public IntVector3(int x, int y, int z) {
 			this.x = x;
 			this.y = y;
 			this.z = z;
 		}
 
-		public class EqualityComparer : IEqualityComparer<VoxelPoint> {
-			
-			public bool Equals(VoxelPoint a, VoxelPoint b) {
-				return a.x == b.x && a.y == b.y && a.z == b.z;
-			}
-			
-			public int GetHashCode(VoxelPoint a) {
-				int c = a.x ^ a.y ^ a.z;
-				return c.GetHashCode();
-			}
-		}
-		
-		public Vector3 toVector()
-		{
-			return new Vector3 ((float)x, (float)y, (float)z); //to Unity's axises
+		public Vector3 ToFloat() {
+			return new Vector3 (x * 1f, y * 1f, z * 1f);
 		}
 	}
 
@@ -63,7 +50,8 @@ public class Demo : MonoBehaviour {
 
 	void Start () {
 		int width = 2 * EDITOR_SPACE_HALF_WIDTH + 1;
-		_editSpace = new int[width, width, width];	
+		_editSpace = new int[width, width, width];
+		GenNearestVoxelPointTable ();
 	}
 	
 	// Update is called once per frame
@@ -130,8 +118,42 @@ public class Demo : MonoBehaviour {
 			int edgeB = caseTriangles[i,1];
 			int edgeC = caseTriangles[i,2];
 
-			AddTriangle(Edge2Position(edgeA, x, y, z), Edge2Position(edgeB, x, y, z), Edge2Position(edgeC, x, y, z));
+			int nearestVoxelPointInde =  _nearestVoxelPointTable[caseValue,i];
+			IntVector3 diffPos = VoxelPointPosition(nearestVoxelPointInde);
+			int materialIndex = GetEditSpacePoint(x + diffPos.x, y + diffPos.y, z + diffPos.z);
+			AddTriangle(Edge2Position(edgeA, x, y, z), Edge2Position(edgeB, x, y, z), Edge2Position(edgeC, x, y, z), materialIndex);
 		}
+	}
+
+	IntVector3 VoxelPointPosition(int voxelPointIndex) {
+		int x, y, z;
+		x = y = z = 0;
+		switch (voxelPointIndex) {
+		case 0:
+			break;
+		case 1:
+			y = 1;
+			break;
+		case 2:
+			x = y = 1;
+			break;
+		case 3:
+			x = 1;
+			break;
+		case 4:
+			z = 1;
+			break;
+		case 5:
+			y = z = 1;
+			break;
+		case 6:
+			x = y = z = 1;
+			break;
+		case 7:
+			x = z = 1;
+			break;
+		}
+		return new IntVector3 (x, y, z);
 	}
 
 	Vector3 Edge2Position(int edgeNumber, int originX, int originY, int originZ) {
@@ -214,14 +236,15 @@ public class Demo : MonoBehaviour {
 		_colors.Add (co);
 	}
 	
-	void AddTriangle(Vector3 a, Vector3 b, Vector3 c)
+	void AddTriangle(Vector3 a, Vector3 b, Vector3 c, int materialIndex)
 	{
 		if (_vertices.Count > 64990) {
 			Debug.Log("vertice count out ");
 			Debug.Assert(false);
 		}
 
-		Color co = Color.gray;//new Color(Random.value, Random.value, Random.value);
+		Color co = materialIndex == 1 ? Color.gray :
+			materialIndex == 2 ? Color.white : materialIndex == 3 ? Color.magenta : Color.red;//new Color(Random.value, Random.value, Random.value);
 		_triangles.Add (_vertices.Count);
 		AddVertex(a,co);
 		
@@ -304,6 +327,38 @@ public class Demo : MonoBehaviour {
 		} else {
 			SetEditSpacePoint (x, y, z, 3);
 			RefreshMesh ();
+		}
+	}
+
+	
+	private int[,] _nearestVoxelPointTable = new int[256,5];
+	
+	void GenNearestVoxelPointTable()
+	{
+		for (int caseValue = 0; caseValue <256; caseValue++) {
+			int[,] caseTriangles = _marchingCubes.getCaseTriangles (caseValue);
+			for (int i = 0; i < caseTriangles.GetLength(0); i++) {
+				int edgeA = caseTriangles[i,0];
+				int edgeB = caseTriangles[i,1];
+				int edgeC = caseTriangles[i,2];
+				
+				Vector3 center = ( Edge2Position(edgeA,0,0,0) + Edge2Position(edgeB, 0,0,0) + Edge2Position(edgeC, 0,0,0))/3f;
+				int caseValueIndex = 1;
+				int minVoxelPoint = 0;
+				float minDistance = 100000f;
+				for (int j = 0; j < 8; j++) {
+					caseValueIndex = 1 << j;
+					if ((caseValueIndex & caseValue) > 0) {
+						IntVector3 voxelPosInt =  VoxelPointPosition(j);
+						float distance = (voxelPosInt.ToFloat() - center).sqrMagnitude;
+						if (distance < minDistance) {
+							minDistance = distance;
+							minVoxelPoint = j;
+						}
+					}
+				}
+				_nearestVoxelPointTable[caseValue,i] = minVoxelPoint;
+			}
 		}
 	}
 }
