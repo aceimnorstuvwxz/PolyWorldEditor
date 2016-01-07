@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class Demo : MonoBehaviour {
 
-	private int EDITOR_SPACE_HALF_WIDTH = 10; //500->11G memory, 100 11G/125=500M
+	private int EDITOR_SPACE_HALF_WIDTH = 20; //500->11G memory, 100 11G/125=500M
 //
 //	private List<Vector3> _vertices;
 //	private List<Vector2> _uvs;
@@ -256,6 +256,7 @@ public class Demo : MonoBehaviour {
 
 	}
 
+	
 	void MouseSelection()
 	{
 		RaycastHit hit;
@@ -279,6 +280,26 @@ public class Demo : MonoBehaviour {
 		Debug.DrawLine(p0, p1);
 		Debug.DrawLine(p1, p2);
 		Debug.DrawLine(p2, p0);
-		Debug.Log ("working");
+//		Debug.Log ("working");
+
+		Debug.DrawRay(hit.point, hit.normal*10f);
+//		hit.point
+		if (Input.GetMouseButton (0)) {
+			AddBrush(hit.point, hit.normal);
+		}
+	}
+
+	void AddBrush(Vector3 point, Vector3 normal)
+	{
+		// test, only the cloest point
+		int x = Mathf.RoundToInt (point.x);
+		int y = Mathf.RoundToInt (point.y);
+		int z = Mathf.RoundToInt (point.z);
+		if (GetEditSpacePoint (x, y, z) == 1) {
+//			AddBrush(point + 0.1f*normal, normal);
+		} else {
+			SetEditSpacePoint (x, y, z, true);
+			RefreshMesh ();
+		}
 	}
 }
