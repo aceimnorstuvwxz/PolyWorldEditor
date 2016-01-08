@@ -6,8 +6,8 @@ public class EditorState : MonoBehaviour {
 
 
 	public bool is_add = true;
-	public float emission_per_second = 2f;
-	public float emission_wait_time = 0.5f;
+	public float emission_per_second = 5f;
+	public float emission_wait_time = 0.2f;
 
 
 

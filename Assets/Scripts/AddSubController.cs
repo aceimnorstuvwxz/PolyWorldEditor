@@ -20,6 +20,16 @@ public class AddSubController : MonoBehaviour {
 		GetComponentInChildren<Text> ().text = _editorState.is_add ? "ADD" : "SUB";
 	}
 
+	void Update()
+	{
+		if (Input.GetKeyDown ("s")) {
+			OnClick();
+		}
+		if (Input.GetKeyUp ("s")) {
+			OnClick();
+		}
+	}
+
 	public void OnClick()
 	{
 		_editorState.is_add = !_editorState.is_add;

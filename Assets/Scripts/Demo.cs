@@ -312,6 +312,8 @@ public class Demo : MonoBehaviour {
 
 	void MouseBrush()
 	{
+
+
 		RaycastHit hit;
 		if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
 			return;
@@ -335,9 +337,14 @@ public class Demo : MonoBehaviour {
 		Debug.DrawLine(p2, p0);
 		Debug.DrawRay(hit.point, hit.normal*10f);
 
-		if (_shouldEmit) {
+		if (_shouldEmit && Input.GetMouseButton(0)) {
 			_shouldEmit = false;
-			AddBrush(hit.point, hit.normal, 0);
+
+			if (_editorState.is_add) {
+				AddBrush(hit.point, hit.normal, 0);
+			} else {
+				SubBrush(hit.point, hit.normal, 0);
+			}
 		}
 	}
 
@@ -355,6 +362,24 @@ public class Demo : MonoBehaviour {
 			AddBrush(srcPoint, normal, extand+0.1f);
 		} else {
 			SetEditSpacePoint (x, y, z, 3);
+			RefreshMesh ();
+		}
+	}
+
+	void SubBrush(Vector3 srcPoint, Vector3 normal, float extand)
+	{
+		if (extand < -1)
+			return;
+		
+		// test, only the cloest point
+		Vector3 point = srcPoint + normal * extand;
+		int x = Mathf.RoundToInt (point.x);
+		int y = Mathf.RoundToInt (point.y);
+		int z = Mathf.RoundToInt (point.z);
+		if (IsEditSpacePointSolid (x, y, z) == 0) {
+			SubBrush(srcPoint, normal, extand-0.1f);
+		} else {
+			SetEditSpacePoint (x, y, z, 0);
 			RefreshMesh ();
 		}
 	}
