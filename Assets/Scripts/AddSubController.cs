@@ -6,34 +6,23 @@ public class AddSubController : MonoBehaviour {
 
 	public Color ADD_COLOR = Color.green;
 	public Color SUB_COLOR = Color.yellow;
-	public int a = 0;
-
-	private bool _isAdd = true;
+	private EditorState _editorState;
 
 	void Start()
 	{
+		_editorState = GameObject.Find ("UICanvas").GetComponent<EditorState> ();
 		Refresh ();
-	}
-
-	public bool IsAdd() {
-		return true;
-
 	}
 
 	void Refresh() 
 	{
-		Color col = _isAdd ? ADD_COLOR : SUB_COLOR;
-
-		GetComponent<Image> ().color = col;
-
-		var tex = GetComponentInChildren<Text> ();
-//		tex.color = col;
-		tex.text = _isAdd ? "ADD" : "SUB";
+		GetComponent<Image> ().color = _editorState.is_add ? ADD_COLOR : SUB_COLOR;
+		GetComponentInChildren<Text> ().text = _editorState.is_add ? "ADD" : "SUB";
 	}
 
 	public void OnClick()
 	{
-		_isAdd = !_isAdd;
+		_editorState.is_add = !_editorState.is_add;
 		Refresh ();
 	}
 }

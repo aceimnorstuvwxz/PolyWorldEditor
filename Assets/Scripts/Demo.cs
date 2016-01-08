@@ -12,6 +12,8 @@ public class Demo : MonoBehaviour {
 
 	private int[,,] _editSpace; // 0 ? -> not solid, 1-N ->solid, with material index
 
+	private EditorState _editorState;
+
 	void SetEditSpacePoint(int x, int y, int z, int value)
 	{
 		_editSpace [x + EDITOR_SPACE_HALF_WIDTH, y + EDITOR_SPACE_HALF_WIDTH, z + EDITOR_SPACE_HALF_WIDTH] = value;
@@ -49,15 +51,20 @@ public class Demo : MonoBehaviour {
 
 
 	void Start () {
+		_editorState = GameObject.Find ("UICanvas").GetComponent<EditorState> ();
+
+
 		int width = 2 * EDITOR_SPACE_HALF_WIDTH + 1;
 		_editSpace = new int[width, width, width];
 		GenNearestVoxelPointTable ();
+
+
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		MouseSelection ();
-		SceneRotation ();
+		EmissionCalc ();
+		MouseBrush ();
 	}
 
 	
@@ -285,8 +292,25 @@ public class Demo : MonoBehaviour {
 
 	}
 
-	
-	void MouseSelection()
+
+	private float _emissionWaitTime = 0;
+	private bool _shouldEmit = false;
+	void EmissionCalc()
+	{
+		if (Input.GetMouseButtonDown (0)) {
+			_emissionWaitTime = _editorState.emission_wait_time;
+			_shouldEmit = true;
+		} else if (Input.GetMouseButton (0)) {
+			_emissionWaitTime -= Time.deltaTime;
+			if (_emissionWaitTime < 0) {
+				_emissionWaitTime = _editorState.emission_wait_time;
+				_shouldEmit = true;
+			}
+		}
+	}
+
+
+	void MouseBrush()
 	{
 		RaycastHit hit;
 		if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
@@ -309,23 +333,26 @@ public class Demo : MonoBehaviour {
 		Debug.DrawLine(p0, p1);
 		Debug.DrawLine(p1, p2);
 		Debug.DrawLine(p2, p0);
-//		Debug.Log ("working");
-
 		Debug.DrawRay(hit.point, hit.normal*10f);
-//		hit.point
-		if (Input.GetMouseButton (0)) {
-			AddBrush(hit.point, hit.normal);
+
+		if (_shouldEmit) {
+			_shouldEmit = false;
+			AddBrush(hit.point, hit.normal, 0);
 		}
 	}
 
-	void AddBrush(Vector3 point, Vector3 normal)
+	void AddBrush(Vector3 srcPoint, Vector3 normal, float extand)
 	{
+		if (extand > 1)
+			return;
+
 		// test, only the cloest point
+		Vector3 point = srcPoint + normal * extand;
 		int x = Mathf.RoundToInt (point.x);
 		int y = Mathf.RoundToInt (point.y);
 		int z = Mathf.RoundToInt (point.z);
-		if (GetEditSpacePoint (x, y, z) == 1) {
-//			AddBrush(point + 0.1f*normal, normal);
+		if (IsEditSpacePointSolid (x, y, z) == 1) {
+			AddBrush(srcPoint, normal, extand+0.1f);
 		} else {
 			SetEditSpacePoint (x, y, z, 3);
 			RefreshMesh ();
@@ -481,18 +508,4 @@ public class Demo : MonoBehaviour {
 	}
 
 
-	void SceneRotation()
-	{
-//		if (Input.GetMouseButton (1) || Input.GetKey("e")) {
-//			float x = Input.GetAxis("Mouse X");
-//			float y = Input.GetAxis("Mouse Y");
-//			Debug.Log("x"+x.ToString() + " y"+y.ToString());
-//			float rotate_scale = 10f;
-////			transform.Rotate(new Vector3(y*rotate_scale, -x*rotate_scale,0));
-//
-//			transform.RotateAround(Vector3.zero, Vector3.right, y*rotate_scale);
-//			transform.RotateAround(Vector3.zero, Vector3.up, -x*rotate_scale);
-//
-//		}
-	}
 }
