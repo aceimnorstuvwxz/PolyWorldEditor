@@ -34,4 +34,10 @@ public class MaterialLineController : MonoBehaviour {
 		GetComponent<Outline> ().enabled = isSelected;
 	}
 
+	public void SetColor(Color color)
+	{
+		GetComponent<Image> ().color = color;
+		GetComponentInChildren<Text> ().color = new Color (1f - color.r, 1f - color.g, 1f - color.b, 1f);
+	}
+
 }

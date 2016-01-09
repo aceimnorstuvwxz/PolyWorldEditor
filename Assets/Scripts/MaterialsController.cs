@@ -13,15 +13,23 @@ public class MaterialsController : MonoBehaviour {
 
 	private List<int> _selectedMaterials;
 
+	private Dictionary<int, Color> _materialColors;
+	private ColorPicker _colorPicker;
+
 	// Use this for initialization
-	void Start () {
+	void Start ()
+	{
 		_content = GameObject.Find ("MaterialsContent");
 		_materialsDict = new Dictionary<int, GameObject> ();
 		_selectedMaterials = new List<int> ();
+		_materialColors = new Dictionary<int, Color> ();
+
+		_colorPicker = GameObject.Find ("ColorPicker").GetComponent<ColorPicker> ();
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void Update () 
+	{
 	
 	}
 
@@ -29,9 +37,7 @@ public class MaterialsController : MonoBehaviour {
 	{
 		Debug.Log ("new material");
 
-
 		int materialId = _materialIndex++;
-
 		
 		var material = Instantiate (material_fab) as GameObject;
 		material.transform.SetParent (_content.transform);
@@ -40,16 +46,17 @@ public class MaterialsController : MonoBehaviour {
 		//		rect.localPosition = new Vector3 (0, -_lineHeight * _layerDict.Count, 0);
 		
 		_materialsDict.Add (materialId, material);
-
-
+		_materialColors.Add (materialId, Color.white);
 		var materialController = material.GetComponent<MaterialLineController> ();
 		materialController.material_id = materialId;
+		materialController.SetColor (_materialColors [materialId]);
 		
 		RefreshContentLayout ();
 		
 		SelectMaterial (materialId);
 
 	}
+
 
 	void RefreshContentLayout()
 	{
@@ -83,6 +90,8 @@ public class MaterialsController : MonoBehaviour {
 		if (!_selectedMaterials.Contains (materialId)) {
 			_selectedMaterials.Add(materialId);
 			_materialsDict [materialId].GetComponent<MaterialLineController> ().SetSelection (true);
+			_colorPicker.SetColor(_materialColors[materialId]);
+
 		}
 
 	}
@@ -111,5 +120,25 @@ public class MaterialsController : MonoBehaviour {
 		RefreshContentLayout ();
 
 		SelectMaterial (desId);
+	}
+
+	
+	public void OnSetColor(Color color)
+	{
+		Debug.Log ("on set color, " + color.ToString ());
+
+		foreach (int id in _selectedMaterials) {
+			_materialColors[id] = color;
+			_materialsDict[id].GetComponent<MaterialLineController>().SetColor (color);
+
+			// TODO refresh mesh color
+		}
+	}
+	
+	public Color OnGetColor()
+	{
+		Debug.Log ("OnGetColor, ");
+		return Color.red;
+		
 	}
 }

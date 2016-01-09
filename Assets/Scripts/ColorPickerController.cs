@@ -13,15 +13,4 @@ public class ColorPickerController : MonoBehaviour {
 	
 	}
 
-	public void OnSetColor(Color color)
-	{
-		Debug.Log ("on set color, " + color.ToString ());
-	}
-
-	public Color OnGetColor()
-	{
-		Debug.Log ("OnGetColor, ");
-		return Color.red;
-
-	}
 }
