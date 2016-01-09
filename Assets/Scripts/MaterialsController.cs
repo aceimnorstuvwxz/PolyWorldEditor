@@ -87,8 +87,29 @@ public class MaterialsController : MonoBehaviour {
 
 	}
 
+	void DeleteMaterial(int id)
+	{
+		var obj = _materialsDict [id];
+		_materialsDict.Remove (id);
+		Destroy (obj);
+	}
+
 	public void OnCombineMaterial()
 	{
+		Debug.Log ("conbine mat");
+		if (_selectedMaterials.Count < 2) 
+			return;
 
+		int desId = _selectedMaterials[0];
+		for (int i = 1; i < _selectedMaterials.Count; i++) {
+			int srcId = _selectedMaterials[i];
+			//TODO change all with srcId to desId in the scene
+
+			DeleteMaterial(srcId);
+		}
+		_selectedMaterials.Clear ();
+		RefreshContentLayout ();
+
+		SelectMaterial (desId);
 	}
 }
