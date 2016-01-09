@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Demo : MonoBehaviour {
+	public bool use_lerp_color = true;
 
 	private int EDITOR_SPACE_HALF_WIDTH = 20; //500->11G memory, 100 11G/125=500M
 //
@@ -50,19 +51,24 @@ public class Demo : MonoBehaviour {
 
 
 
-	void Start () {
+	void Start () 
+	{
 		_editorState = GameObject.Find ("UICanvas").GetComponent<EditorState> ();
 
 
 		int width = 2 * EDITOR_SPACE_HALF_WIDTH + 1;
 		_editSpace = new int[width, width, width];
-		GenNearestVoxelPointTable ();
 
-
+		if (use_lerp_color) {
+			GenNearestVoxelPointForEdgePointTable ();
+		} else {
+			GenNearestVoxelPointTable ();
+		}
 	}
-	
-	// Update is called once per frame
-	void Update () {
+
+
+	void Update () 
+	{
 		EmissionCalc ();
 		MouseBrush ();
 	}
@@ -107,6 +113,13 @@ public class Demo : MonoBehaviour {
 		meshColider.sharedMesh = mesh;
 	}
 
+	int GetVoxelPointMaterial(int voxelRelativeIndex, int x, int y, int z)
+	{
+		IntVector3 diffPos = VoxelPointPosition(voxelRelativeIndex);
+		int materialIndex = GetEditSpacePoint(x + diffPos.x, y + diffPos.y, z + diffPos.z);
+		return materialIndex;
+	}
+
 	void MarchPerCube(int x, int y, int z)
 	{
 		int caseValue = 0;
@@ -126,10 +139,29 @@ public class Demo : MonoBehaviour {
 			int edgeB = caseTriangles[i,1];
 			int edgeC = caseTriangles[i,2];
 
-			int nearestVoxelPointInde =  _nearestVoxelPointTable[caseValue,i];
-			IntVector3 diffPos = VoxelPointPosition(nearestVoxelPointInde);
-			int materialIndex = GetEditSpacePoint(x + diffPos.x, y + diffPos.y, z + diffPos.z);
-			AddTriangle(Edge2Position(edgeA, x, y, z), Edge2Position(edgeB, x, y, z), Edge2Position(edgeC, x, y, z), materialIndex);
+			if (!use_lerp_color) {
+				// color mode, connected triangle in one voxel space will has same color, the color is to the nearest voxel point.
+				int nearestVoxelPointInde =  _nearestVoxelPointTable[caseValue,i];
+				int materialIndex = GetVoxelPointMaterial(nearestVoxelPointInde, x, y, z);
+
+				AddTriangle(Edge2Position(edgeA, x, y, z), 
+				            Edge2Position(edgeB, x, y, z), 
+				            Edge2Position(edgeC, x, y, z), 
+				            materialIndex, 
+				            materialIndex, 
+				            materialIndex);
+
+			} else {
+				// color mode, every single edge point will find its own color, the color is to the nearest voxel point.
+				AddTriangle(Edge2Position(edgeA, x, y, z),
+				            Edge2Position(edgeB, x, y, z), 
+				            Edge2Position(edgeC, x, y, z),
+				            GetVoxelPointMaterial(_nearestVoxelPointForEdgePointTable[caseValue, edgeA], x, y, z),
+				            GetVoxelPointMaterial(_nearestVoxelPointForEdgePointTable[caseValue, edgeB], x, y, z),
+				            GetVoxelPointMaterial(_nearestVoxelPointForEdgePointTable[caseValue, edgeC], x, y, z));
+
+			}
+
 		}
 	}
 
@@ -243,25 +275,31 @@ public class Demo : MonoBehaviour {
 //		_uvs.Add (node.toUV (_voxels.GetLength(0), _voxels.GetLength(2)));
 		_colors.Add (co);
 	}
+
+	Color GetMatColor(int materialIndex)
+	{
+		
+		Color co = materialIndex == 1 ? Color.gray :
+			materialIndex == 2 ? Color.white : materialIndex == 3 ? Color.magenta :
+				materialIndex == 0 ? Color.green: Color.red;//new Color(Random.value, Random.value, Random.value);
+		return co;
+	}
 	
-	void AddTriangle(Vector3 a, Vector3 b, Vector3 c, int materialIndex)
+	void AddTriangle(Vector3 a, Vector3 b, Vector3 c, int matA, int matB, int matC)
 	{
 		if (_vertices.Count > 64990) {
 			Debug.Log("vertice count out ");
 			Debug.Assert(false);
 		}
 
-		Color co = materialIndex == 1 ? Color.gray :
-			materialIndex == 2 ? Color.white : materialIndex == 3 ? Color.magenta :
-				materialIndex == 0 ? Color.green: Color.red;//new Color(Random.value, Random.value, Random.value);
 		_triangles.Add (_vertices.Count);
-		AddVertex(a,co);
+		AddVertex(a,GetMatColor(matA));
 		
 		_triangles.Add (_vertices.Count);
-		AddVertex(b,co);
+		AddVertex (b, GetMatColor (matB));
 		
 		_triangles.Add (_vertices.Count);
-		AddVertex(c,co);
+		AddVertex(c, GetMatColor(matC));
 
 	}
 
@@ -532,5 +570,29 @@ public class Demo : MonoBehaviour {
 		}
 	}
 
+	private int[,] _nearestVoxelPointForEdgePointTable = new int[256,12];
+	private void GenNearestVoxelPointForEdgePointTable()
+	{
+		
+		for (int caseValue = 0; caseValue <256; caseValue++) {
+			for (int edge = 0; edge < 12; edge++) {
+				Vector3 edgePosition = Edge2Position(edge,0,0,0);
+				int minVoxel = -1;
+				float minDistance = 1000;
+				for (int voxel = 0; voxel < 8; voxel++) {
+					int keyvalue = 1 << voxel;
+					if ((caseValue & keyvalue) > 0) {
+						IntVector3 voxelPosition = VoxelPointPosition(voxel);
+						float dist = (voxelPosition.ToFloat()-edgePosition).sqrMagnitude;
+						if (dist < minDistance) {
+							minDistance = dist;
+							minVoxel = voxel;
+						}
+					}
+				}
+				_nearestVoxelPointForEdgePointTable[caseValue, edge] = minVoxel;
+			}
+		}
+	}
 
 }
