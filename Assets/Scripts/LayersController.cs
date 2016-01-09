@@ -10,12 +10,15 @@ public class LayersController : MonoBehaviour {
 	private int _layerIndex = 0;
 
 
-	private List<GameObject> _layerList;
+//	private List<GameObject> _layerList;
+	private Dictionary<int, GameObject> _layerDict;
+	private List<int> _selectedLayers;
 
 	// Use this for initialization
 	void Start () {
 		_content = GameObject.Find ("LayersContent");
-		_layerList = new List<GameObject> ();
+		_layerDict = new Dictionary<int, GameObject> ();
+		_selectedLayers = new List<int> ();
 	}
 	
 	// Update is called once per frame
@@ -37,20 +40,46 @@ public class LayersController : MonoBehaviour {
 		layer.transform.SetParent (_content.transform);
 		var rect = layer.GetComponent<RectTransform> ();
 		_lineHeight = rect.sizeDelta.y * 1.2f;
-		rect.localPosition = new Vector3 (0, -_lineHeight * _layerList.Count, 0);
+		rect.localPosition = new Vector3 (0, -_lineHeight * _layerDict.Count, 0);
 
-		_layerList.Add (layer);
+		_layerDict.Add (layerId, layer);
+
+		var layerLine = layer.GetComponent<LayerLineController> ();
+		layerLine.layer_id = layerId;
+
 		RefreshContentSize ();
+
+		SelectLayer (layerId);
 	}
 
 	void RefreshContentSize()
 	{
 		var rect = _content.GetComponent<RectTransform> ();
-		rect.sizeDelta = new Vector2 (rect.sizeDelta.x, _layerList.Count * _lineHeight);
+		rect.sizeDelta = new Vector2 (rect.sizeDelta.x, _layerDict.Count * _lineHeight);
 	}
 
 	public void OnClickDeleteLayer()
 	{
 		Debug.Log ("delete layer");
+	}
+
+	public void SelectLayer(int layerId)
+	{
+
+		if (Input.GetKey ("right shift") || Input.GetKey ("left shift")) {
+			//multiple selection
+		} else {
+			// de-select old ones
+			foreach (int id in _selectedLayers) {
+				_layerDict [id].GetComponent<LayerLineController> ().SetSelection (false);
+			}
+			_selectedLayers.Clear();
+		}
+
+		// select new
+		if (!_selectedLayers.Contains (layerId)) {
+			_selectedLayers.Add(layerId);
+			_layerDict [layerId].GetComponent<LayerLineController> ().SetSelection (true);
+		}
 	}
 }
