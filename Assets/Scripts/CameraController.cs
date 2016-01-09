@@ -10,7 +10,7 @@ public class CameraController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetKey ("e") || Input.GetMouseButton(1)) {
+		if (Input.GetKey ("v") || Input.GetMouseButton(1)) {
 			
 			float x = Input.GetAxis("Mouse X");
 			float y = Input.GetAxis("Mouse Y");
