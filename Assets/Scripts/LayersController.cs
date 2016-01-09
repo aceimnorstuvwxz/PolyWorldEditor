@@ -27,7 +27,6 @@ public class LayersController : MonoBehaviour {
 	}
 
 
-	private float _lineHeight = 0;
 	public void OnClickNewLayer()
 	{
 		Debug.Log ("new layer");
@@ -38,29 +37,50 @@ public class LayersController : MonoBehaviour {
 
 		var layer = Instantiate (_layerFab) as GameObject;
 		layer.transform.SetParent (_content.transform);
-		var rect = layer.GetComponent<RectTransform> ();
-		_lineHeight = rect.sizeDelta.y * 1.2f;
-		rect.localPosition = new Vector3 (0, -_lineHeight * _layerDict.Count, 0);
+//		var rect = layer.GetComponent<RectTransform> ();
+//		_lineHeight = rect.sizeDelta.y * 1.2f;
+//		rect.localPosition = new Vector3 (0, -_lineHeight * _layerDict.Count, 0);
 
 		_layerDict.Add (layerId, layer);
 
 		var layerLine = layer.GetComponent<LayerLineController> ();
 		layerLine.layer_id = layerId;
 
-		RefreshContentSize ();
+		RefreshContentLayout ();
 
 		SelectLayer (layerId);
 	}
 
-	void RefreshContentSize()
+	void RefreshContentLayout()
 	{
-		var rect = _content.GetComponent<RectTransform> ();
-		rect.sizeDelta = new Vector2 (rect.sizeDelta.x, _layerDict.Count * _lineHeight);
+		int heightCount = 0;
+		float lineHeight = 0;
+		foreach (GameObject obj in _layerDict.Values) {
+			var rect = obj.GetComponent<RectTransform> ();
+			lineHeight = rect.sizeDelta.y * 1.2f;
+			rect.localPosition = new Vector3 (0, -lineHeight * heightCount, 0);
+
+			heightCount++;
+		}
+
+		var contentRect = _content.GetComponent<RectTransform> ();
+		contentRect.sizeDelta = new Vector2 (contentRect.sizeDelta.x, _layerDict.Count * lineHeight);
 	}
 
 	public void OnClickDeleteLayer()
 	{
 		Debug.Log ("delete layer");
+
+		// delete all selected
+		foreach (int id in _selectedLayers) {
+			var desObj = _layerDict[id];
+			_layerDict.Remove(id);
+			Destroy(desObj);
+		}
+		_selectedLayers.Clear ();
+
+		// reposition all
+		RefreshContentLayout ();
 	}
 
 	public void SelectLayer(int layerId)
