@@ -46,7 +46,7 @@ public class MaterialsController : MonoBehaviour {
 		//		rect.localPosition = new Vector3 (0, -_lineHeight * _layerDict.Count, 0);
 		
 		_materialsDict.Add (materialId, material);
-		_materialColors.Add (materialId, Color.white);
+		_materialColors.Add (materialId, new Color(Random.value, Random.value, Random.value, 1f));
 		var materialController = material.GetComponent<MaterialLineController> ();
 		materialController.material_id = materialId;
 		materialController.SetColor (_materialColors [materialId]);
