@@ -8,6 +8,7 @@ public class LayersController : MonoBehaviour {
 
 	private GameObject _content;
 	private int _layerIndex = 0;
+	private PolyWorldController _polyWorldController;
 
 
 //	private List<GameObject> _layerList;
@@ -19,6 +20,7 @@ public class LayersController : MonoBehaviour {
 		_content = GameObject.Find ("LayersContent");
 		_layerDict = new Dictionary<int, GameObject> ();
 		_selectedLayers = new List<int> ();
+		_polyWorldController = GameObject.Find ("PolyWorldSpace").GetComponent<PolyWorldController> ();
 	}
 	
 	// Update is called once per frame
@@ -37,9 +39,6 @@ public class LayersController : MonoBehaviour {
 
 		var layer = Instantiate (_layerFab) as GameObject;
 		layer.transform.SetParent (_content.transform);
-//		var rect = layer.GetComponent<RectTransform> ();
-//		_lineHeight = rect.sizeDelta.y * 1.2f;
-//		rect.localPosition = new Vector3 (0, -_lineHeight * _layerDict.Count, 0);
 
 		_layerDict.Add (layerId, layer);
 
@@ -49,6 +48,8 @@ public class LayersController : MonoBehaviour {
 		RefreshContentLayout ();
 
 		SelectLayer (layerId);
+
+		_polyWorldController.NewPolyObject (layerId);
 	}
 
 	void RefreshContentLayout()
