@@ -77,11 +77,15 @@ public class LayersController : MonoBehaviour {
 			var desObj = _layerDict[id];
 			_layerDict.Remove(id);
 			Destroy(desObj);
+
+			
+			_polyWorldController.DeletePolyObject(id);
 		}
 		_selectedLayers.Clear ();
 
 		// reposition all
 		RefreshContentLayout ();
+
 	}
 
 	public void SelectLayer(int layerId)
