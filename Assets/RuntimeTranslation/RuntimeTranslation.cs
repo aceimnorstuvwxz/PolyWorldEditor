@@ -16,11 +16,15 @@ public class RuntimeTranslation : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		// escape to exit any edit mode
 		if (Input.GetKeyDown ("escape")) {
 			SetBtnSelection (btn_move, false);
 			SetBtnSelection (btn_rotate, false);
 			SetBtnSelection (btn_scale, false);
 		}
+
+		// update gizmo's scale, so when camera move, it always has the same vision size!!!
+		// TODO
 	}
 
 	void SetBtnSelection(GameObject btn, bool isSelected)
@@ -94,5 +98,10 @@ public class RuntimeTranslation : MonoBehaviour {
 				SetBtnSelection(theBtn, true);
 			}
 		}
+	}
+
+	public void SetPosition(Vector3 position)
+	{
+
 	}
 }
