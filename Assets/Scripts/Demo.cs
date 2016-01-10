@@ -50,10 +50,11 @@ public class Demo : MonoBehaviour {
 	}
 
 
-
+	private MaterialsController _materialsController;
 	void Start () 
 	{
 		_editorState = GameObject.Find ("UICanvas").GetComponent<EditorState> ();
+		_materialsController = GameObject.Find ("MaterialsCanvas").GetComponent<MaterialsController> ();
 
 
 		int width = 2 * EDITOR_SPACE_HALF_WIDTH + 1;
@@ -276,13 +277,9 @@ public class Demo : MonoBehaviour {
 		_colors.Add (co);
 	}
 
-	Color GetMatColor(int materialIndex)
+	Color GetMatColor(int mat)
 	{
-		
-		Color co = materialIndex == 1 ? Color.gray :
-			materialIndex == 2 ? Color.white : materialIndex == 3 ? Color.magenta :
-				materialIndex == 0 ? Color.green: Color.red;//new Color(Random.value, Random.value, Random.value);
-		return co;
+		return _materialsController.GetMaterialColor (mat);
 	}
 	
 	void AddTriangle(Vector3 a, Vector3 b, Vector3 c, int matA, int matB, int matC)
@@ -307,10 +304,11 @@ public class Demo : MonoBehaviour {
 	public void AddPlane ()
 	{
 		int planeYPos = 0;
+		int mat = _materialsController.GetBrushMaterial ();
 
 		for (int x = -EDITOR_SPACE_HALF_WIDTH; x <= EDITOR_SPACE_HALF_WIDTH; x++) {
 			for (int z = -EDITOR_SPACE_HALF_WIDTH; z <= EDITOR_SPACE_HALF_WIDTH; z++) {
-				SetEditSpacePoint(x,planeYPos,z,1);
+				SetEditSpacePoint(x,planeYPos,z,mat);
 			}
 		}
 	}
@@ -319,11 +317,12 @@ public class Demo : MonoBehaviour {
 	{
 		Debug.Log ("AddCube");
 		int cubeHalfWidth = 5;
+		int mat = _materialsController.GetBrushMaterial ();
 
 		for (int x = -cubeHalfWidth; x<= cubeHalfWidth; x++) {
 			for (int y = -cubeHalfWidth; y <= cubeHalfWidth; y++) {
 				for (int z = -cubeHalfWidth; z <= cubeHalfWidth; z++){
-					SetEditSpacePoint(x,y,z,2);
+					SetEditSpacePoint(x,y,z,mat);
 				}
 			}
 		}
@@ -399,7 +398,7 @@ public class Demo : MonoBehaviour {
 		if (IsEditSpacePointSolid (x, y, z) == 1) {
 			AddBrush(srcPoint, normal, extand+0.1f);
 		} else {
-			SetEditSpacePoint (x, y, z, 3);
+			SetEditSpacePoint (x, y, z, _materialsController.GetBrushMaterial());
 			RefreshMesh ();
 		}
 	}

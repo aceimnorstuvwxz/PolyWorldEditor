@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class MaterialsController : MonoBehaviour {
 
-	private int _materialIndex = 0;
+	private int _materialIndex = 1; //start from 1
 
 	public GameObject material_fab;
 	private GameObject _content;
@@ -15,6 +15,7 @@ public class MaterialsController : MonoBehaviour {
 
 	private Dictionary<int, Color> _materialColors;
 	private ColorPicker _colorPicker;
+	private Demo _demo;
 
 	// Use this for initialization
 	void Start ()
@@ -23,8 +24,9 @@ public class MaterialsController : MonoBehaviour {
 		_materialsDict = new Dictionary<int, GameObject> ();
 		_selectedMaterials = new List<int> ();
 		_materialColors = new Dictionary<int, Color> ();
-
 		_colorPicker = GameObject.Find ("ColorPicker").GetComponent<ColorPicker> ();
+		_demo = GameObject.Find ("DemoObject").GetComponent<Demo> ();
+		Invoke("OnNewMaterial", 0.5f);
 	}
 	
 	// Update is called once per frame
@@ -132,7 +134,9 @@ public class MaterialsController : MonoBehaviour {
 			_materialsDict[id].GetComponent<MaterialLineController>().SetColor (color);
 
 			// TODO refresh mesh color
+			_demo.RefreshMesh();
 		}
+		
 	}
 	
 	public Color OnGetColor()
@@ -140,5 +144,21 @@ public class MaterialsController : MonoBehaviour {
 		Debug.Log ("OnGetColor, ");
 		return Color.red;
 		
+	}
+
+	public int GetBrushMaterial()
+	{
+		//TODO multiple selection with message
+		if (_selectedMaterials.Count > 0) {
+			int mat = _selectedMaterials [0];
+			return mat;
+		}
+
+		return 0;
+	}
+
+	public Color GetMaterialColor(int id)
+	{
+		return _materialColors [id];
 	}
 }
