@@ -1,3 +1,3 @@
 # PolyWorldEditor
 A low-poly scene edit tool.
-![GitHub Logo](/Screenshot0.png)
+![GitHub Logo](Screenshot/0.png)
