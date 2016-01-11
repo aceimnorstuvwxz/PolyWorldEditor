@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class RuntimeTranslation : MonoBehaviour {
 	public GameObject btn_move;
@@ -11,7 +12,13 @@ public class RuntimeTranslation : MonoBehaviour {
 	public GameObject gizmo_rotate;
 	public GameObject gizmo_scale;
 
-	enum RTT {MOVE, ROTATE, SCALE};
+
+	private List<GameObject> _targetObjects;
+	private GameObject _mainTargetObject;
+
+	enum RTT {MOVE, ROTATE, SCALE, NONE};
+
+	private RTT _currentWorkingState = RTT.NONE;
 	
 	// Use this for initialization
 	void Start () {
@@ -31,6 +38,12 @@ public class RuntimeTranslation : MonoBehaviour {
 
 		// update gizmo's scale, so when camera move, it always has the same vision size!!!
 		// TODO
+
+
+		// do real work!
+		if (_mainTargetObject != null && _currentWorkingState != RTT.NONE) {
+			UpdateTranslation();
+		}
 	}
 
 	GameObject RTT2Btn(RTT t)
@@ -53,6 +66,14 @@ public class RuntimeTranslation : MonoBehaviour {
 
 		var gizmo = RTT2Gizmo (t);
 		gizmo.SetActive (isSelected);
+
+		if (isSelected) {
+			_currentWorkingState = t;
+		} else {
+			if (_currentWorkingState == t) {
+				_currentWorkingState = RTT.NONE;
+			}
+		}
 	}
 
 	bool GetBtnSelection(RTT t)
@@ -123,8 +144,20 @@ public class RuntimeTranslation : MonoBehaviour {
 		}
 	}
 
-	public void SetPosition(Vector3 position)
+	public void SetTargetGameObjects(List<GameObject> targets)
+	{
+		_targetObjects = targets;
+		if (targets.Count > 0) {
+			_mainTargetObject = targets [0];
+		} else {
+			_mainTargetObject = null;
+			Debug.Log("empty controll target list");
+		}
+	}
+
+	void UpdateTranslation()
 	{
 
 	}
+
 }
