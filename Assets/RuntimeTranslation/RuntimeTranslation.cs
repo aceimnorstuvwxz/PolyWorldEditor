@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 public class RuntimeTranslation : MonoBehaviour {
+	public GameObject test_target;
 	public GameObject btn_move;
 	public GameObject btn_rotate;
 	public GameObject btn_scale;
@@ -28,6 +29,12 @@ public class RuntimeTranslation : MonoBehaviour {
 		SetBtnSelection(RTT.MOVE, false);
 		SetBtnSelection(RTT.SCALE, false);
 		SetBtnSelection(RTT.ROTATE, false);
+
+		if (test_target != null) {
+			List<GameObject> l = new List<GameObject>();
+			l.Add(test_target);
+			SetTargetGameObjects(l);
+		}
 
 	}
 	
@@ -188,7 +195,13 @@ public class RuntimeTranslation : MonoBehaviour {
 
 	void UpdateTranslation()
 	{
-
+		Debug.Log ("W");
+		RaycastHit hit;
+		if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
+			return;
+		string tag = hit.collider.gameObject.tag;
+		int layer = hit.collider.gameObject.layer;
+		Debug.Log (LayerMask.NameToLayer ("RTGizmo").ToString () + " " + layer.ToString () + " " + tag);
 	}
 
 }
