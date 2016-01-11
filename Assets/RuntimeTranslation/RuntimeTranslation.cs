@@ -8,6 +8,8 @@ public class RuntimeTranslation : MonoBehaviour {
 	public GameObject btn_rotate;
 	public GameObject btn_scale;
 
+	public GameObject btn_global_local;
+
 	public GameObject gizmo_move;
 	public GameObject gizmo_rotate;
 	public GameObject gizmo_scale;
@@ -15,6 +17,7 @@ public class RuntimeTranslation : MonoBehaviour {
 
 	private List<GameObject> _targetObjects;
 	private GameObject _mainTargetObject;
+	private bool _isCurrentGlobal = true;
 
 	enum RTT {MOVE, ROTATE, SCALE, NONE};
 
@@ -25,6 +28,7 @@ public class RuntimeTranslation : MonoBehaviour {
 		SetBtnSelection(RTT.MOVE, false);
 		SetBtnSelection(RTT.SCALE, false);
 		SetBtnSelection(RTT.ROTATE, false);
+
 	}
 	
 	// Update is called once per frame
@@ -144,6 +148,31 @@ public class RuntimeTranslation : MonoBehaviour {
 		}
 	}
 
+	public void OnClickBtnGlobalLocal()
+	{
+		_isCurrentGlobal = !_isCurrentGlobal;
+		btn_global_local.GetComponentInChildren<Text>().text = _isCurrentGlobal ? "Global" : "Local";
+
+		RefreshGizmoGlocalLocal ();
+	}
+
+	void RefreshGizmoGlocalLocal()
+	{
+		if (_isCurrentGlobal) {
+			gizmo_move.transform.rotation = Quaternion.identity;
+			gizmo_rotate.transform.rotation = Quaternion.identity;
+			gizmo_scale.transform.rotation = Quaternion.identity;
+		} else {
+			if (_mainTargetObject != null) {
+				Quaternion rot = _mainTargetObject.transform.rotation;
+				
+				gizmo_move.transform.rotation = rot;
+				gizmo_rotate.transform.rotation = rot;
+				gizmo_scale.transform.rotation = rot;
+			}
+		}
+	}
+
 	public void SetTargetGameObjects(List<GameObject> targets)
 	{
 		_targetObjects = targets;
@@ -153,6 +182,8 @@ public class RuntimeTranslation : MonoBehaviour {
 			_mainTargetObject = null;
 			Debug.Log("empty controll target list");
 		}
+
+		RefreshGizmoGlocalLocal ();
 	}
 
 	void UpdateTranslation()
