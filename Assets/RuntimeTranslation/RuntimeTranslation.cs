@@ -196,6 +196,8 @@ public class RuntimeTranslation : MonoBehaviour {
 
 	private bool _mouseTouching = false;
 	private RTA _mouseTouchingAxis = RTA.B;
+	private Vector3 _hitNormal = Vector3.one;
+	private Vector3 _hitPosition = Vector3.one;
 	void UpdateTranslation()
 	{
 
@@ -216,6 +218,9 @@ public class RuntimeTranslation : MonoBehaviour {
 			_mouseTouchingAxis = tag == "RT_R" ? RTA.R :
 				tag == "RT_G" ? RTA.G :
 					tag == "RT_B" ? RTA.B : RTA.C;
+
+			_hitNormal = hit.normal;
+			_hitPosition = hit.point;
 		}
 
 		if (Input.GetMouseButtonUp (0)) {
@@ -261,6 +266,26 @@ public class RuntimeTranslation : MonoBehaviour {
 
 		} else if (_currentWorkingState == RTT.ROTATE) {
 
+			Vector3 rotateRollAxis = _mouseTouchingAxis == RTA.R ? gizmo_rotate.transform.right :
+				_mouseTouchingAxis == RTA.G ? gizmo_rotate.transform.up : gizmo_rotate.transform.forward;
+			Vector3 tangentDir = Vector3.Cross(rotateRollAxis, _hitNormal).normalized;
+
+
+			// to screen dir
+			Vector3 worldSrcPoint = _hitPosition;
+			Vector3 worldDesPoint = _hitPosition + tangentDir;
+
+			Vector3 screenSrcPoint = Camera.main.WorldToScreenPoint(worldSrcPoint);
+			Vector3 screenDesPoint = Camera.main.WorldToScreenPoint(worldDesPoint);
+
+			Vector2 screenTangentDir = new Vector2(screenDesPoint.x - screenSrcPoint.x, screenDesPoint.y - screenSrcPoint.y);
+			float mag = Vector2.Dot(new Vector2(dx, dy), screenTangentDir);
+
+			float degreeSpeed = 180f / Screen.height;
+
+			float rotateDegree = degreeSpeed * mag;
+
+			gizmo_rotate.transform.RotateAround(transform.position, rotateRollAxis, rotateDegree);
 
 		} else if (_currentWorkingState == RTT.SCALE) {
 			Vector3 movDir = _mouseTouchingAxis == RTA.R ? gizmo_scale.transform.right :
