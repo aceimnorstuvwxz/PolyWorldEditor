@@ -21,7 +21,7 @@ public class RuntimeTranslation : MonoBehaviour {
 	private bool _isCurrentGlobal = true;
 
 	enum RTT {MOVE, ROTATE, SCALE, NONE};
-	enum RTA {R,G,B};
+	enum RTA {R,G,B,C};
 
 	private RTT _currentWorkingState = RTT.NONE;
 	
@@ -214,7 +214,8 @@ public class RuntimeTranslation : MonoBehaviour {
 			Debug.Log (tag);
 			_mouseTouching = true;
 			_mouseTouchingAxis = tag == "RT_R" ? RTA.R :
-				tag == "RT_G" ? RTA.G : RTA.B;
+				tag == "RT_G" ? RTA.G :
+					tag == "RT_B" ? RTA.B : RTA.C;
 		}
 
 		if (Input.GetMouseButtonUp (0)) {
@@ -263,7 +264,8 @@ public class RuntimeTranslation : MonoBehaviour {
 
 		} else if (_currentWorkingState == RTT.SCALE) {
 			Vector3 movDir = _mouseTouchingAxis == RTA.R ? gizmo_scale.transform.right :
-				_mouseTouchingAxis == RTA.G ? gizmo_scale.transform.up : gizmo_scale.transform.forward;
+				_mouseTouchingAxis == RTA.G ? gizmo_scale.transform.up : 
+					_mouseTouchingAxis == RTA.B ? gizmo_scale.transform.forward : gizmo_scale.transform.up;
 			
 			Vector3 srcPoint = gizmo_scale.transform.position;
 			Vector3 dirPoint = srcPoint + movDir;
@@ -287,6 +289,9 @@ public class RuntimeTranslation : MonoBehaviour {
 			Vector3 scaleVect = new Vector3(_mouseTouchingAxis == RTA.R ? scale : 1f , 
 			                                _mouseTouchingAxis == RTA.G ? scale : 1f , 
 			                                _mouseTouchingAxis == RTA.B ? scale : 1f );
+			if (_mouseTouchingAxis == RTA.C || Input.GetKey("left shift")|| Input.GetKey("right shift") ) {
+				scaleVect = Vector3.one *scale;
+			}
 
 			Vector3 oldScale = gizmo_scale.transform.localScale;
 
