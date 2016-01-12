@@ -18,6 +18,8 @@ public class RuntimeTranslation : MonoBehaviour {
 	public GameObject gizmo_rotate;
 	public GameObject gizmo_scale;
 
+	public Material here_material;
+
 
 	private List<GameObject> _targetObjects;
 	private GameObject _mainTargetObject;
@@ -111,8 +113,21 @@ public class RuntimeTranslation : MonoBehaviour {
 
 		bool notlgbtn = t == RTT.SCALE && isSelected;
 		btn_global_local.SetActive (!notlgbtn);
-
+		
+		RefreshMaterial ();
 		RefreshGizmoGlocalLocal ();
+	}
+
+	void RefreshMaterial()
+	{
+		if (_oldMaterial != null) {
+			Material mat = _currentWorkingState != RTT.NONE ? here_material : _oldMaterial;
+			Debug.Assert (here_material != null);
+			Debug.Assert (_oldMaterial != null);
+			foreach (GameObject go in _targetObjects) {
+				go.GetComponent<MeshRenderer> ().material = mat;
+			}
+		}
 	}
 
 	bool GetBtnSelection(RTT t)
@@ -198,7 +213,9 @@ public class RuntimeTranslation : MonoBehaviour {
 
 	void RefreshGizmoGlocalLocal()
 	{
-		btn_global_local.GetComponentInChildren<Text>().text = _isCurrentGlobal ? "Global" : "Local";
+		if (btn_global_local.activeSelf) {
+			btn_global_local.GetComponentInChildren<Text> ().text = _isCurrentGlobal ? "Global" : "Local";
+		}
 
 		if (_isCurrentGlobal) {
 			gizmo_move.transform.rotation = Quaternion.identity;
@@ -219,6 +236,7 @@ public class RuntimeTranslation : MonoBehaviour {
 		}
 	}
 
+	private Material _oldMaterial;
 	public void SetTargetGameObjects(List<GameObject> targets)
 	{
 		_targetObjects = targets;
@@ -230,6 +248,11 @@ public class RuntimeTranslation : MonoBehaviour {
 		}
 
 		RefreshGizmoGlocalLocal ();
+
+		if (_mainTargetObject != null) {
+			_oldMaterial = _mainTargetObject.GetComponent<MeshRenderer>().material;
+		}
+		Debug.Assert (_oldMaterial != null);
 	}
 
 	private bool _mouseTouching = false;
@@ -376,7 +399,7 @@ public class RuntimeTranslation : MonoBehaviour {
 			
 			float mag = screenSpaceDir.magnitude;
 			float radio = mag == 0f ? 0f : (Vector2.Dot(screenMov, screenSpaceDir) / mag);
-			float base_ment = 50f;
+			float base_ment = 1000f;
 			float scale = (base_ment + radio * mag)/base_ment;
 
 			Vector3 scaleVect = new Vector3(_mouseTouchingAxis == RTA.R ? scale : 1f , 
@@ -405,7 +428,12 @@ public class RuntimeTranslation : MonoBehaviour {
 		gizmo_rotate.transform.localScale = scale;
 		gizmo_scale.transform.localScale = scale;
 
-		Debug.Log ("distance " + distance.ToString ());
+//		Debug.Log ("distance " + distance.ToString ());
+	}
+
+	void SetMaterial(bool useHere)
+	{
+
 	}
 
 }
