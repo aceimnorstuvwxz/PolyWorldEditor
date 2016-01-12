@@ -342,7 +342,15 @@ public class RuntimeTranslation : MonoBehaviour {
 			gizmo_rotate.transform.RotateAround(gizmo_rotate.transform.position, rotateRollAxis, rotateDegree);
 
 			foreach(GameObject go in _targetObjects) {
-				go.transform.RotateAround( _isCurrentUnited ? gizmo_rotate.transform.position : go.transform.position, rotateRollAxis, rotateDegree);
+
+				Vector3 localRotateRollAxis = _mouseTouchingAxis == RTA.R ? go.transform.right :
+					_mouseTouchingAxis == RTA.G ? go.transform.up : go.transform.forward;
+
+				bool useLocal = (!_isCurrentGlobal) && (!_isCurrentUnited);
+
+				go.transform.RotateAround( _isCurrentUnited ? gizmo_rotate.transform.position : go.transform.position, 
+				                          useLocal ? localRotateRollAxis : rotateRollAxis , 
+				                          rotateDegree);
 			}
 
 		} else if (_currentWorkingState == RTT.SCALE) {
