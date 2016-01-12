@@ -195,13 +195,18 @@ public class RuntimeTranslation : MonoBehaviour {
 
 	void UpdateTranslation()
 	{
-		Debug.Log ("W");
 		RaycastHit hit;
-		if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
+
+		int gizmoLayer = LayerMask.NameToLayer ("RTGizmo");
+		int mask = (1 << gizmoLayer);
+
+		if (!Physics.Raycast (Camera.main.ScreenPointToRay (Input.mousePosition), out hit, Mathf.Infinity, mask)) {
 			return;
+		}
+
+
 		string tag = hit.collider.gameObject.tag;
-		int layer = hit.collider.gameObject.layer;
-		Debug.Log (LayerMask.NameToLayer ("RTGizmo").ToString () + " " + layer.ToString () + " " + tag);
+		Debug.Log (tag);
 	}
 
 }
