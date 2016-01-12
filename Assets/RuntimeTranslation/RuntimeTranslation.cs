@@ -5,11 +5,14 @@ using System.Collections.Generic;
 
 public class RuntimeTranslation : MonoBehaviour {
 	public GameObject test_target;
+	public GameObject test_target2;
+
 	public GameObject btn_move;
 	public GameObject btn_rotate;
 	public GameObject btn_scale;
 
 	public GameObject btn_global_local;
+	public GameObject btn_rotate_mode;
 
 	public GameObject gizmo_move;
 	public GameObject gizmo_rotate;
@@ -19,6 +22,7 @@ public class RuntimeTranslation : MonoBehaviour {
 	private List<GameObject> _targetObjects;
 	private GameObject _mainTargetObject;
 	private bool _isCurrentGlobal = true;
+	private bool _isCurrentUnited = true; //rotate/move mode: united/alone
 
 	enum RTT {MOVE, ROTATE, SCALE, NONE};
 	enum RTA {R,G,B,C};
@@ -31,11 +35,13 @@ public class RuntimeTranslation : MonoBehaviour {
 		SetBtnSelection(RTT.SCALE, false);
 		SetBtnSelection(RTT.ROTATE, false);
 
+
 		if (test_target != null) {
 			List<GameObject> l = new List<GameObject>();
 			l.Add(test_target);
+			l.Add(test_target2);
 			SetTargetGameObjects(l);
-		}
+		}/**/
 
 	}
 	
@@ -70,22 +76,43 @@ public class RuntimeTranslation : MonoBehaviour {
 			t == RTT.ROTATE ? gizmo_rotate : gizmo_scale;
 	}
 
+	void ResetGizmoPositions()
+	{
+		if (_mainTargetObject != null) {
+			Vector3 pos = _mainTargetObject.transform.position;
+			gizmo_move.transform.position = pos;
+			gizmo_rotate.transform.position = pos;
+			gizmo_scale.transform.position = pos;
+		}
+	}
+
 	void SetBtnSelection(RTT t, bool isSelected)
 	{
 		var btn = RTT2Btn (t);
 		btn.GetComponent<Outline> ().enabled = isSelected;
 		btn.GetComponent<Image> ().color = isSelected ? Color.gray : Color.white;
+		btn.GetComponentInChildren<Text> ().color = isSelected ? Color.white : Color.black;
 
 		var gizmo = RTT2Gizmo (t);
 		gizmo.SetActive (isSelected);
 
 		if (isSelected) {
 			_currentWorkingState = t;
+			ResetGizmoPositions();
 		} else {
 			if (_currentWorkingState == t) {
 				_currentWorkingState = RTT.NONE;
 			}
 		}
+
+		if (t == RTT.ROTATE || t == RTT.MOVE) {
+			btn_rotate_mode.SetActive(isSelected);
+		}
+
+		bool notlgbtn = t == RTT.SCALE && isSelected;
+		btn_global_local.SetActive (!notlgbtn);
+
+		RefreshGizmoGlocalLocal ();
 	}
 
 	bool GetBtnSelection(RTT t)
@@ -159,25 +186,36 @@ public class RuntimeTranslation : MonoBehaviour {
 	public void OnClickBtnGlobalLocal()
 	{
 		_isCurrentGlobal = !_isCurrentGlobal;
-		btn_global_local.GetComponentInChildren<Text>().text = _isCurrentGlobal ? "Global" : "Local";
 
 		RefreshGizmoGlocalLocal ();
 	}
 
+	public void OnClickBtnTranslateMode()
+	{
+		_isCurrentUnited = !_isCurrentUnited;
+		btn_rotate_mode.GetComponentInChildren<Text> ().text = _isCurrentUnited ? "United" : "Alone";
+	}
+
 	void RefreshGizmoGlocalLocal()
 	{
+		btn_global_local.GetComponentInChildren<Text>().text = _isCurrentGlobal ? "Global" : "Local";
+
 		if (_isCurrentGlobal) {
 			gizmo_move.transform.rotation = Quaternion.identity;
 			gizmo_rotate.transform.rotation = Quaternion.identity;
-			gizmo_scale.transform.rotation = Quaternion.identity;
 		} else {
 			if (_mainTargetObject != null) {
 				Quaternion rot = _mainTargetObject.transform.rotation;
 				
 				gizmo_move.transform.rotation = rot;
 				gizmo_rotate.transform.rotation = rot;
-				gizmo_scale.transform.rotation = rot;
 			}
+		}
+
+		// scale always local
+		if (_mainTargetObject != null) {
+			Quaternion rot = _mainTargetObject.transform.rotation;
+			gizmo_scale.transform.rotation = rot;
 		}
 	}
 
@@ -228,12 +266,13 @@ public class RuntimeTranslation : MonoBehaviour {
 		}
 
 		if (_mouseTouching) {
-			float dx = Input.GetAxis("Mouse X");
-			float dy = Input.GetAxis("Mouse Y");
-			Debug.Log("mouse move "+dx.ToString() + " " + dy.ToString());
+			float dx = Input.GetAxis ("Mouse X");
+			float dy = Input.GetAxis ("Mouse Y");
+			Debug.Log ("mouse move " + dx.ToString () + " " + dy.ToString ());
 
-			KissAss(dx, dy);
-
+			KissAss (dx, dy);
+		} else {
+			RefreshGizmoSize();
 		}
 	}
 
@@ -265,9 +304,17 @@ public class RuntimeTranslation : MonoBehaviour {
 
 			Vector3 resMoveDiff = radio * movDir;
 			gizmo_move.transform.position = gizmo_move.transform.position + resMoveDiff;
+
 			foreach(GameObject go in _targetObjects) {
-				go.transform.position = go.transform.position + resMoveDiff;
+				if (_isCurrentUnited) {
+					go.transform.position = go.transform.position + resMoveDiff;
+				} else {
+					Vector3 movDir2 = _mouseTouchingAxis == RTA.R ? go.transform.right :
+						_mouseTouchingAxis == RTA.G ? go.transform.up : go.transform.forward;
+					go.transform.position = go.transform.position + radio * movDir2;
+				}
 			}
+			RefreshGizmoSize();
 
 		} else if (_currentWorkingState == RTT.ROTATE) {
 
@@ -293,8 +340,9 @@ public class RuntimeTranslation : MonoBehaviour {
 			float rotateDegree = degreeSpeed * mag;
 
 			gizmo_rotate.transform.RotateAround(gizmo_rotate.transform.position, rotateRollAxis, rotateDegree);
+
 			foreach(GameObject go in _targetObjects) {
-				go.transform.RotateAround(gizmo_rotate.transform.position, rotateRollAxis, rotateDegree);
+				go.transform.RotateAround( _isCurrentUnited ? gizmo_rotate.transform.position : go.transform.position, rotateRollAxis, rotateDegree);
 			}
 
 		} else if (_currentWorkingState == RTT.SCALE) {
@@ -338,6 +386,18 @@ public class RuntimeTranslation : MonoBehaviour {
 			}
 
 		}
+	}
+
+	void RefreshGizmoSize()
+	{
+		// adjust gizmoes' scale, so it always has the same size in screen space!
+		float distance = Camera.main.WorldToViewportPoint (gizmo_move.transform.position).z;
+		Vector3 scale = Vector3.one * (distance / 10f);
+		gizmo_move.transform.localScale = scale;
+		gizmo_rotate.transform.localScale = scale;
+		gizmo_scale.transform.localScale = scale;
+
+		Debug.Log ("distance " + distance.ToString ());
 	}
 
 }
