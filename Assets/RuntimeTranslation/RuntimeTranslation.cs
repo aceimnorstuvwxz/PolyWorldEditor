@@ -21,6 +21,7 @@ public class RuntimeTranslation : MonoBehaviour {
 	private bool _isCurrentGlobal = true;
 
 	enum RTT {MOVE, ROTATE, SCALE, NONE};
+	enum RTA {R,G,B};
 
 	private RTT _currentWorkingState = RTT.NONE;
 	
@@ -193,20 +194,105 @@ public class RuntimeTranslation : MonoBehaviour {
 		RefreshGizmoGlocalLocal ();
 	}
 
+	private bool _mouseTouching = false;
+	private RTA _mouseTouchingAxis = RTA.B;
 	void UpdateTranslation()
 	{
-		RaycastHit hit;
 
-		int gizmoLayer = LayerMask.NameToLayer ("RTGizmo");
-		int mask = (1 << gizmoLayer);
+		if (Input.GetMouseButtonDown (0)) {
+			RaycastHit hit;
 
-		if (!Physics.Raycast (Camera.main.ScreenPointToRay (Input.mousePosition), out hit, Mathf.Infinity, mask)) {
-			return;
+			int gizmoLayer = LayerMask.NameToLayer ("RTGizmo");
+			int mask = (1 << gizmoLayer);
+
+			if (!Physics.Raycast (Camera.main.ScreenPointToRay (Input.mousePosition), out hit, Mathf.Infinity, mask)) {
+				return;
+			}
+
+
+			string tag = hit.collider.gameObject.tag;
+			Debug.Log (tag);
+			_mouseTouching = true;
+			_mouseTouchingAxis = tag == "RT_R" ? RTA.R :
+				tag == "RT_G" ? RTA.G : RTA.B;
 		}
 
+		if (Input.GetMouseButtonUp (0)) {
+			_mouseTouching = false;
+		}
 
-		string tag = hit.collider.gameObject.tag;
-		Debug.Log (tag);
+		if (_mouseTouching) {
+			float dx = Input.GetAxis("Mouse X");
+			float dy = Input.GetAxis("Mouse Y");
+			Debug.Log("mouse move "+dx.ToString() + " " + dy.ToString());
+
+			KissAss(dx, dy);
+
+		}
+	}
+
+
+	void KissAss(float dx, float dy)
+	{
+		if (_currentWorkingState == RTT.MOVE) {
+
+			Vector3 movDir = _mouseTouchingAxis == RTA.R ? gizmo_move.transform.right :
+				_mouseTouchingAxis == RTA.G ? gizmo_move.transform.up : gizmo_move.transform.forward;
+
+			Vector3 srcPoint = gizmo_move.transform.position;
+			Vector3 dirPoint = srcPoint + movDir;
+
+			//project to screen space, then dot, scalre radio!!
+
+			Vector3 screenSrcPoint = Camera.main.WorldToScreenPoint(srcPoint);
+			Vector3 screenDirPoint = Camera.main.WorldToScreenPoint(dirPoint);
+			Debug.Log(screenSrcPoint.ToString());
+			Debug.Log(screenDirPoint.ToString());
+
+			Vector3 screenSpaceDir3 = screenDirPoint-screenSrcPoint;
+			Vector2 screenSpaceDir = new Vector2(screenSpaceDir3.x, screenSpaceDir3.y);
+			Vector2 screenMov = new Vector2(dx,dy);
+
+			float mag = screenSpaceDir.magnitude;
+			float radio = mag == 0f ? 0f : (Vector2.Dot(screenMov, screenSpaceDir) / mag);
+
+			gizmo_move.transform.position = gizmo_move.transform.position + radio * movDir;
+
+		} else if (_currentWorkingState == RTT.ROTATE) {
+
+
+		} else if (_currentWorkingState == RTT.SCALE) {
+			Vector3 movDir = _mouseTouchingAxis == RTA.R ? gizmo_scale.transform.right :
+				_mouseTouchingAxis == RTA.G ? gizmo_scale.transform.up : gizmo_scale.transform.forward;
+			
+			Vector3 srcPoint = gizmo_scale.transform.position;
+			Vector3 dirPoint = srcPoint + movDir;
+			
+			//project to screen space, then dot, scalre radio!!
+			
+			Vector3 screenSrcPoint = Camera.main.WorldToScreenPoint(srcPoint);
+			Vector3 screenDirPoint = Camera.main.WorldToScreenPoint(dirPoint);
+			Debug.Log(screenSrcPoint.ToString());
+			Debug.Log(screenDirPoint.ToString());
+			
+			Vector3 screenSpaceDir3 = screenDirPoint-screenSrcPoint;
+			Vector2 screenSpaceDir = new Vector2(screenSpaceDir3.x, screenSpaceDir3.y);
+			Vector2 screenMov = new Vector2(dx,dy);
+			
+			float mag = screenSpaceDir.magnitude;
+			float radio = mag == 0f ? 0f : (Vector2.Dot(screenMov, screenSpaceDir) / mag);
+			float base_ment = 50f;
+			float scale = (base_ment + radio * mag)/base_ment;
+
+			Vector3 scaleVect = new Vector3(_mouseTouchingAxis == RTA.R ? scale : 1f , 
+			                                _mouseTouchingAxis == RTA.G ? scale : 1f , 
+			                                _mouseTouchingAxis == RTA.B ? scale : 1f );
+
+			Vector3 oldScale = gizmo_scale.transform.localScale;
+
+			gizmo_scale.transform.localScale =  Vector3.Scale(oldScale, scaleVect);
+
+		}
 	}
 
 }
