@@ -241,6 +241,8 @@ public class RuntimeTranslation : MonoBehaviour {
 	void KissAss(float dx, float dy)
 	{
 		if (_currentWorkingState == RTT.MOVE) {
+			
+			//project to screen space, then dot product, scalre radio!!
 
 			Vector3 movDir = _mouseTouchingAxis == RTA.R ? gizmo_move.transform.right :
 				_mouseTouchingAxis == RTA.G ? gizmo_move.transform.up : gizmo_move.transform.forward;
@@ -248,7 +250,6 @@ public class RuntimeTranslation : MonoBehaviour {
 			Vector3 srcPoint = gizmo_move.transform.position;
 			Vector3 dirPoint = srcPoint + movDir;
 
-			//project to screen space, then dot, scalre radio!!
 
 			Vector3 screenSrcPoint = Camera.main.WorldToScreenPoint(srcPoint);
 			Vector3 screenDirPoint = Camera.main.WorldToScreenPoint(dirPoint);
@@ -262,16 +263,22 @@ public class RuntimeTranslation : MonoBehaviour {
 			float mag = screenSpaceDir.magnitude;
 			float radio = mag == 0f ? 0f : (Vector2.Dot(screenMov, screenSpaceDir) / mag);
 
-			gizmo_move.transform.position = gizmo_move.transform.position + radio * movDir;
+			Vector3 resMoveDiff = radio * movDir;
+			gizmo_move.transform.position = gizmo_move.transform.position + resMoveDiff;
+			foreach(GameObject go in _targetObjects) {
+				go.transform.position = go.transform.position + resMoveDiff;
+			}
 
 		} else if (_currentWorkingState == RTT.ROTATE) {
+
+			// find the hit normal vector, cross product with the rotate axis, the result is tangent vector,
+			// project that to screen space, then mouse move diff dot product with it, all done!
 
 			Vector3 rotateRollAxis = _mouseTouchingAxis == RTA.R ? gizmo_rotate.transform.right :
 				_mouseTouchingAxis == RTA.G ? gizmo_rotate.transform.up : gizmo_rotate.transform.forward;
 			Vector3 tangentDir = Vector3.Cross(rotateRollAxis, _hitNormal).normalized;
 
 
-			// to screen dir
 			Vector3 worldSrcPoint = _hitPosition;
 			Vector3 worldDesPoint = _hitPosition + tangentDir;
 
@@ -285,17 +292,22 @@ public class RuntimeTranslation : MonoBehaviour {
 
 			float rotateDegree = degreeSpeed * mag;
 
-			gizmo_rotate.transform.RotateAround(transform.position, rotateRollAxis, rotateDegree);
+			gizmo_rotate.transform.RotateAround(gizmo_rotate.transform.position, rotateRollAxis, rotateDegree);
+			foreach(GameObject go in _targetObjects) {
+				go.transform.RotateAround(gizmo_rotate.transform.position, rotateRollAxis, rotateDegree);
+			}
 
 		} else if (_currentWorkingState == RTT.SCALE) {
+
+			// no global scaling, all is local
+			// when [shift], scale in all axises!
+
 			Vector3 movDir = _mouseTouchingAxis == RTA.R ? gizmo_scale.transform.right :
 				_mouseTouchingAxis == RTA.G ? gizmo_scale.transform.up : 
 					_mouseTouchingAxis == RTA.B ? gizmo_scale.transform.forward : gizmo_scale.transform.up;
 			
 			Vector3 srcPoint = gizmo_scale.transform.position;
 			Vector3 dirPoint = srcPoint + movDir;
-			
-			//project to screen space, then dot, scalre radio!!
 			
 			Vector3 screenSrcPoint = Camera.main.WorldToScreenPoint(srcPoint);
 			Vector3 screenDirPoint = Camera.main.WorldToScreenPoint(dirPoint);
@@ -321,6 +333,9 @@ public class RuntimeTranslation : MonoBehaviour {
 			Vector3 oldScale = gizmo_scale.transform.localScale;
 
 			gizmo_scale.transform.localScale =  Vector3.Scale(oldScale, scaleVect);
+			foreach(GameObject go in _targetObjects) {
+				go.transform.localScale = Vector3.Scale(go.transform.localScale, scaleVect);
+			}
 
 		}
 	}
