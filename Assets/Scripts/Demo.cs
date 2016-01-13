@@ -352,7 +352,8 @@ public class Demo : MonoBehaviour {
 
 
 		RaycastHit hit;
-		if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
+		int layerMask = 1 << LayerMask.NameToLayer ("PolyObjectSelected");
+		if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity, layerMask))
 			return;
 		
 		MeshCollider meshCollider = hit.collider as MeshCollider;

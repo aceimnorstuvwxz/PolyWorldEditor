@@ -4,11 +4,13 @@ using System.Collections.Generic;
 
 public class LayersController : MonoBehaviour {
 
-	public GameObject _layerFab;
+	public GameObject layer_line_fab;
+	public GameObject runtime_translation;
 
 	private GameObject _content;
 	private int _layerIndex = 0;
 	private PolyWorldController _polyWorldController;
+
 
 
 //	private List<GameObject> _layerList;
@@ -37,7 +39,7 @@ public class LayersController : MonoBehaviour {
 		// will 
 		int layerId = _layerIndex++;
 
-		var layer = Instantiate (_layerFab) as GameObject;
+		var layer = Instantiate (layer_line_fab) as GameObject;
 		layer.transform.SetParent (_content.transform);
 
 		_layerDict.Add (layerId, layer);
@@ -47,9 +49,9 @@ public class LayersController : MonoBehaviour {
 
 		RefreshContentLayout ();
 
-		SelectLayer (layerId);
-
 		_polyWorldController.NewPolyObject (layerId);
+		
+		SelectLayer (layerId);
 	}
 
 	void RefreshContentLayout()
@@ -90,13 +92,13 @@ public class LayersController : MonoBehaviour {
 
 	public void SelectLayer(int layerId)
 	{
-
 		if (Input.GetKey ("right shift") || Input.GetKey ("left shift")) {
 			//multiple selection
 		} else {
 			// de-select old ones
 			foreach (int id in _selectedLayers) {
 				_layerDict [id].GetComponent<LayerLineController> ().SetSelection (false);
+				_polyWorldController.SetObjectSelection(id, false);
 			}
 			_selectedLayers.Clear();
 		}
@@ -105,6 +107,11 @@ public class LayersController : MonoBehaviour {
 		if (!_selectedLayers.Contains (layerId)) {
 			_selectedLayers.Add(layerId);
 			_layerDict [layerId].GetComponent<LayerLineController> ().SetSelection (true);
+			_polyWorldController.SetObjectSelection(layerId, true);
 		}
+
+		var selectedGos = _polyWorldController.GetSelectedGameObjects (_selectedLayers);
+		runtime_translation.GetComponent<RuntimeTranslation> ().SetTargetGameObjects (selectedGos);
 	}
+	
 }

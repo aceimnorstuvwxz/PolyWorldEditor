@@ -38,4 +38,18 @@ public class PolyWorldController : MonoBehaviour {
 		Destroy (obj);
 
 	}
+
+	public List<GameObject> GetSelectedGameObjects(List<int> keys)
+	{
+		List< GameObject> golist = new List<GameObject> ();
+		foreach (int id in keys) {
+			golist.Add(_polyObjects[id]);
+		}
+		return golist;
+	}
+
+	public void SetObjectSelection(int id, bool isSelected)
+	{
+		_polyObjects [id].layer = isSelected ? LayerMask.NameToLayer ("PolyObjectSelected") : 0;
+	}
 }
