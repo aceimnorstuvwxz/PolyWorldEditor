@@ -66,8 +66,6 @@ public class PolyObjectController : MonoBehaviour {
 		_materialsController = GameObject.Find ("MaterialsCanvas").GetComponent<MaterialsController> ();
 		Debug.Assert (_materialsController != null);
 
-		Debug.Log ("Start");
-		
 		int width = 2 * EDITOR_SPACE_HALF_WIDTH + 1;
 		_editSpace = new int[width, width, width];
 		
