@@ -116,6 +116,11 @@ public class ColorPicker : MonoBehaviour {
 		}
 	}
 
+	public bool IsActive()
+	{
+		return mState == ESTATE.Showed;
+	}
+
 	// Update is called once per frame
 	public void _DrawGUI () 
 	{

@@ -34,6 +34,8 @@ public class PolyObjectController : MonoBehaviour {
 	public bool _selected = false;
 
 	private RuntimeTranslation _runtimeTranslation;
+
+	private ColorPicker _colorPicker;
 	
 	// VoxelPoint, the meta points of marching cubes
 	class IntVector3
@@ -58,6 +60,7 @@ public class PolyObjectController : MonoBehaviour {
 	private MaterialsController _materialsController;
 	void Start () 
 	{
+		_colorPicker = GameObject.Find ("ColorPicker").GetComponent<ColorPicker> ();
 		_runtimeTranslation = GameObject.Find ("RuntimeTranslation").GetComponent<RuntimeTranslation> ();
 		_editorState = GameObject.Find ("UICanvas").GetComponent<EditorState> ();
 		_materialsController = GameObject.Find ("MaterialsCanvas").GetComponent<MaterialsController> ();
@@ -78,7 +81,7 @@ public class PolyObjectController : MonoBehaviour {
 	
 	void Update () 
 	{
-		if (_selected && !_runtimeTranslation.IsActive()) {
+		if (_selected && !_runtimeTranslation.IsActive() && !_colorPicker.IsActive()) {
 			EmissionCalc ();
 			MouseBrush ();
 		}
@@ -386,14 +389,17 @@ public class PolyObjectController : MonoBehaviour {
 		Debug.DrawLine(p1, p2);
 		Debug.DrawLine(p2, p0);
 		Debug.DrawRay(hit.point, hit.normal*10f);
+
+		Vector3 localPoint = transform.InverseTransformPoint (hit.point);
+		Vector3 localNormal = transform.InverseTransformDirection (hit.normal);
 		
 		if (_shouldEmit && Input.GetMouseButton(0)) {
 			_shouldEmit = false;
 			
 			if (_editorState.is_add) {
-				AddBrush(hit.point, hit.normal, 0);
+				AddBrush(localPoint, localNormal, 0);
 			} else {
-				SubBrush(hit.point, hit.normal, 0);
+				SubBrush(localPoint, localNormal, 0);
 			}
 		}
 	}
