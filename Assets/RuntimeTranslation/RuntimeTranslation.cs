@@ -411,7 +411,7 @@ public class RuntimeTranslation : MonoBehaviour {
 			
 			float mag = screenSpaceDir.magnitude;
 			float radio = mag == 0f ? 0f : (Vector2.Dot(screenMov, screenSpaceDir) / mag);
-			float base_ment = 1000f;
+			float base_ment = 100f;
 			float scale = (base_ment + radio * mag)/base_ment;
 
 			Vector3 scaleVect = new Vector3(_mouseTouchingAxis == RTA.R ? scale : 1f , 
