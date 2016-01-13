@@ -23,6 +23,7 @@ public class RuntimeTranslation : MonoBehaviour {
 
 	private List<GameObject> _targetObjects;
 	private GameObject _mainTargetObject;
+	private List<GameObject> _allObjects;
 	private bool _isCurrentGlobal = true;
 	private bool _isCurrentUnited = true; //rotate/move mode: united/alone
 
@@ -51,9 +52,7 @@ public class RuntimeTranslation : MonoBehaviour {
 	void Update () {
 		// escape to exit any edit mode
 		if (Input.GetKeyDown ("escape")) {
-			SetBtnSelection(RTT.MOVE, false);
-			SetBtnSelection(RTT.SCALE, false);
-			SetBtnSelection(RTT.ROTATE, false);
+			Esc();
 		}
 
 		// update gizmo's scale, so when camera move, it always has the same vision size!!!
@@ -64,6 +63,18 @@ public class RuntimeTranslation : MonoBehaviour {
 		if (_mainTargetObject != null && _currentWorkingState != RTT.NONE) {
 			UpdateTranslation();
 		}
+	}
+
+	public bool IsActive()
+	{
+		return _currentWorkingState != RTT.NONE;
+	}
+
+	void Esc()
+	{
+		SetBtnSelection(RTT.MOVE, false);
+		SetBtnSelection(RTT.SCALE, false);
+		SetBtnSelection(RTT.ROTATE, false);
 	}
 
 	GameObject RTT2Btn(RTT t)
@@ -124,7 +135,7 @@ public class RuntimeTranslation : MonoBehaviour {
 			Material mat = _currentWorkingState != RTT.NONE ? here_material : _oldMaterial;
 			Debug.Assert (here_material != null);
 			Debug.Assert (_oldMaterial != null);
-			foreach (GameObject go in _targetObjects) {
+			foreach (GameObject go in _allObjects) {
 				go.GetComponent<MeshRenderer> ().material = mat;
 			}
 		}
@@ -239,6 +250,7 @@ public class RuntimeTranslation : MonoBehaviour {
 	private Material _oldMaterial;
 	public void SetTargetGameObjects(List<GameObject> targets)
 	{
+		Esc ();
 		_targetObjects = targets;
 		if (targets.Count > 0) {
 			_mainTargetObject = targets [0];
@@ -434,6 +446,11 @@ public class RuntimeTranslation : MonoBehaviour {
 	void SetMaterial(bool useHere)
 	{
 
+	}
+
+	public void SetAllObjects(List<GameObject> objects)
+	{
+		_allObjects = objects;
 	}
 
 }

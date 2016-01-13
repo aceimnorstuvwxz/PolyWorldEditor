@@ -15,7 +15,7 @@ public class MaterialsController : MonoBehaviour {
 
 	private Dictionary<int, Color> _materialColors;
 	private ColorPicker _colorPicker;
-	private Demo _demo;
+	private PolyWorldController _polyWorldController;
 
 	// Use this for initialization
 	void Start ()
@@ -25,7 +25,7 @@ public class MaterialsController : MonoBehaviour {
 		_selectedMaterials = new List<int> ();
 		_materialColors = new Dictionary<int, Color> ();
 		_colorPicker = GameObject.Find ("ColorPicker").GetComponent<ColorPicker> ();
-		_demo = GameObject.Find ("DemoObject").GetComponent<Demo> ();
+		_polyWorldController = GameObject.Find ("PolyWorldSpace").GetComponent<PolyWorldController> ();
 		Invoke("OnNewMaterial", 0.5f);
 	}
 	
@@ -133,9 +133,9 @@ public class MaterialsController : MonoBehaviour {
 			_materialColors[id] = color;
 			_materialsDict[id].GetComponent<MaterialLineController>().SetColor (color);
 
-			// TODO refresh mesh color
-			_demo.RefreshMesh();
 		}
+		
+		_polyWorldController.RefreshMaterial (_selectedMaterials);
 		
 	}
 	

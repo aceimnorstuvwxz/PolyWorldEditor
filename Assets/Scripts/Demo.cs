@@ -349,8 +349,6 @@ public class Demo : MonoBehaviour {
 
 	void MouseBrush()
 	{
-
-
 		RaycastHit hit;
 		int layerMask = 1 << LayerMask.NameToLayer ("PolyObjectSelected");
 		if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity, layerMask))

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 public class LayersController : MonoBehaviour {
 
 	public GameObject layer_line_fab;
-	public GameObject runtime_translation;
 
 	private GameObject _content;
 	private int _layerIndex = 0;
@@ -110,8 +109,8 @@ public class LayersController : MonoBehaviour {
 			_polyWorldController.SetObjectSelection(layerId, true);
 		}
 
-		var selectedGos = _polyWorldController.GetSelectedGameObjects (_selectedLayers);
-		runtime_translation.GetComponent<RuntimeTranslation> ().SetTargetGameObjects (selectedGos);
+		_polyWorldController.RefreshSelection ();
+
 	}
 	
 }
