@@ -20,6 +20,13 @@ public class LayerLineController : MonoBehaviour {
 	
 	}
 
+	public void SetLayerId(int id)
+	{
+		layer_id = id;
+
+		GetComponentInChildren<Text> ().text = "layer-" + id.ToString ();
+	}
+
 	public void OnClickSelection() 
 	{
 		Debug.Log ("select layer id=" + layer_id.ToString ());

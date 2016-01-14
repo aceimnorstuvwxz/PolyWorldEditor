@@ -44,7 +44,7 @@ public class LayersController : MonoBehaviour {
 		_layerDict.Add (layerId, layer);
 
 		var layerLine = layer.GetComponent<LayerLineController> ();
-		layerLine.layer_id = layerId;
+		layerLine.SetLayerId(layerId);
 
 		RefreshContentLayout ();
 
@@ -72,6 +72,9 @@ public class LayersController : MonoBehaviour {
 	public void OnClickDeleteLayer()
 	{
 		Debug.Log ("delete layer");
+
+		if (_selectedLayers.Count == 0)
+			return;
 
 		// delete all selected
 		foreach (int id in _selectedLayers) {
@@ -128,5 +131,10 @@ public class LayersController : MonoBehaviour {
 	public void SetLayerVisibility(int id, bool isShow)
 	{
 		_polyWorldController.SetObjectVisibility (id, isShow);
+	}
+
+	public void OnClickDuplicate()
+	{
+		Debug.Log ("duplicate");
 	}
 }
