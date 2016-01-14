@@ -31,4 +31,12 @@ public class LayerLineController : MonoBehaviour {
 	{
 		GetComponent<Outline> ().enabled = isSelected;
 	}
+
+	public void OnToggleEye(bool isShow)
+	{
+		Debug.Log ("toggle eye");
+		_layersController.SetLayerVisibility (layer_id, isShow);
+
+		GetComponentInChildren<Toggle> ().isOn = isShow;
+	}
 }

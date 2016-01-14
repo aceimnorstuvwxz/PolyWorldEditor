@@ -58,6 +58,7 @@ public class PolyObjectController : MonoBehaviour {
 	
 	
 	private MaterialsController _materialsController;
+	private MeshRenderer _meshRenderer;
 	void Start () 
 	{
 		_colorPicker = GameObject.Find ("ColorPicker").GetComponent<ColorPicker> ();
@@ -74,12 +75,14 @@ public class PolyObjectController : MonoBehaviour {
 		} else {
 			GenNearestVoxelPointTable ();
 		}
+
+		_meshRenderer = GetComponent<MeshRenderer> ();
 	}
 	
 	
 	void Update () 
 	{
-		if (_selected && !_runtimeTranslation.IsActive() && !_colorPicker.IsActive()) {
+		if (_selected && !_runtimeTranslation.IsActive() && !_colorPicker.IsActive() && _meshRenderer.enabled) {
 			EmissionCalc ();
 			MouseBrush ();
 		}

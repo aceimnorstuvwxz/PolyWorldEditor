@@ -92,4 +92,10 @@ public class PolyWorldController : MonoBehaviour {
 		}
 		runtime_translation.GetComponent<RuntimeTranslation> ().SetAllObjects (r);
 	}
+
+	public void SetObjectVisibility(int id, bool isShow)
+	{
+		var go = _polyObjects [id];
+		go.GetComponent<MeshRenderer> ().enabled = isShow;
+	}
 }

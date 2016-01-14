@@ -112,5 +112,21 @@ public class LayersController : MonoBehaviour {
 		_polyWorldController.RefreshSelection ();
 
 	}
-	
+
+	private bool _flagAllShow = true;
+	public void OnClickEyeAll()
+	{
+		Debug.Log ("eye all");
+
+		_flagAllShow = !_flagAllShow;
+		foreach (int id in _layerDict.Keys) {
+//			_polyWorldController.SetObjectVisibility (id, _flagAllShow);
+			_layerDict[id].GetComponent<LayerLineController>().OnToggleEye(_flagAllShow);
+		}
+	}
+
+	public void SetLayerVisibility(int id, bool isShow)
+	{
+		_polyWorldController.SetObjectVisibility (id, isShow);
+	}
 }
