@@ -46,4 +46,9 @@ public class LayerLineController : MonoBehaviour {
 
 		GetComponentInChildren<Toggle> ().isOn = isShow;
 	}
+
+	public void OnClickEditName()
+	{
+		Debug.Log ("edit name");
+	}
 }
