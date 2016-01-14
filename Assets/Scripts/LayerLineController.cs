@@ -27,6 +27,11 @@ public class LayerLineController : MonoBehaviour {
 		GetComponentInChildren<Text> ().text = "layer-" + id.ToString ();
 	}
 
+	public void SetLayerName(string name)
+	{
+		GetComponentInChildren<Text> ().text = name;
+	}
+
 	public void OnClickSelection() 
 	{
 		Debug.Log ("select layer id=" + layer_id.ToString ());
@@ -50,5 +55,7 @@ public class LayerLineController : MonoBehaviour {
 	public void OnClickEditName()
 	{
 		Debug.Log ("edit name");
+
+		_layersController.BeginEditLayerName (layer_id);
 	}
 }

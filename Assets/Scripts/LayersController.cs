@@ -1,20 +1,22 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
 public class LayersController : MonoBehaviour {
 
 	public GameObject layer_line_fab;
+	public GameObject name_input;
+	public GameObject name_input_field;
 
 	private GameObject _content;
 	private int _layerIndex = 0;
 	private PolyWorldController _polyWorldController;
 
-
-
 //	private List<GameObject> _layerList;
 	private Dictionary<int, GameObject> _layerDict;
 	private List<int> _selectedLayers;
+
 
 	// Use this for initialization
 	void Start () {
@@ -22,6 +24,7 @@ public class LayersController : MonoBehaviour {
 		_layerDict = new Dictionary<int, GameObject> ();
 		_selectedLayers = new List<int> ();
 		_polyWorldController = GameObject.Find ("PolyWorldSpace").GetComponent<PolyWorldController> ();
+		name_input.SetActive (false);
 	}
 	
 	// Update is called once per frame
@@ -136,5 +139,26 @@ public class LayersController : MonoBehaviour {
 	public void OnClickDuplicate()
 	{
 		Debug.Log ("duplicate");
+	}
+
+	private int _underEditingLayerId;
+
+	public void BeginEditLayerName(int id)
+	{
+		_underEditingLayerId = id;
+		// show input field
+		name_input.SetActive (true);
+		name_input_field.GetComponent<InputField> ().text = "";
+	}
+
+	public void EndEditLayerName()
+	{
+		string newName = name_input_field.GetComponent<InputField> ().text;
+		if (newName.Length > 0 && _layerDict.ContainsKey(_underEditingLayerId)) {
+			_layerDict[_underEditingLayerId].GetComponent<LayerLineController>().SetLayerName(newName);
+		}
+
+		name_input.SetActive (false);
+
 	}
 }
