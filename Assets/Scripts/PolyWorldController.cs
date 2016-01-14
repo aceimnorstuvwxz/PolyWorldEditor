@@ -39,6 +39,7 @@ public class PolyWorldController : MonoBehaviour {
 
 		var obj = _polyObjects [id];
 		_polyObjects.Remove (id);
+		_selectedObects.Remove (id);
 		Destroy (obj);
 
 	}
