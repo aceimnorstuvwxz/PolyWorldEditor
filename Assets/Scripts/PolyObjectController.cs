@@ -5,6 +5,10 @@ using System.Collections.Generic;
 public class PolyObjectController : MonoBehaviour {
 
 	public bool use_lerp_color = true;
+
+	public Material mat_normal;
+	public Material mat_translation;
+	public Material mat_out_line;
 	
 	private int EDITOR_SPACE_HALF_WIDTH = 20; //500->11G memory, 100 11G/125=500M
 	//
@@ -612,5 +616,32 @@ public class PolyObjectController : MonoBehaviour {
 				_nearestVoxelPointForEdgePointTable[caseValue, edge] = minVoxel;
 			}
 		}
+	}
+
+	private bool _flagShowOutline = false;
+	private bool _flagTranslation = false;
+	void RefreshMaterialSetting()
+	{
+		var render = GetComponent<MeshRenderer> ();
+		if (_flagTranslation) {
+			GetComponent<MeshRenderer> ().materials = new Material[]{mat_translation};
+		} else if (_flagShowOutline) {
+			GetComponent<MeshRenderer> ().materials = new Material[]{mat_normal, mat_out_line};
+		} else {
+			GetComponent<MeshRenderer> ().materials = new Material[]{mat_normal};
+		}
+	}
+
+	public void SetSelection(bool isSelected)
+	{
+		_selected = isSelected;
+		_flagShowOutline = isSelected;
+		RefreshMaterialSetting ();
+	}
+
+	public void SetTranslation(bool isTranslation)
+	{
+		_flagTranslation = isTranslation;
+		RefreshMaterialSetting ();
 	}
 }

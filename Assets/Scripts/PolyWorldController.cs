@@ -2,7 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class PolyWorldController : MonoBehaviour {
+
+public class PolyWorldController : MonoBehaviour, IRuntimeTranslationCallBack{
 	public GameObject runtime_translation;
 
 	public GameObject poly_obj_fab;
@@ -16,6 +17,8 @@ public class PolyWorldController : MonoBehaviour {
 
 		_polyObjects = new Dictionary<int, GameObject> ();
 		_selectedObects = new List<int> ();
+
+		runtime_translation.GetComponent<RuntimeTranslation> ().SetCallBack (this);
 	}
 	
 	void Update () {
@@ -56,7 +59,7 @@ public class PolyWorldController : MonoBehaviour {
 	public void SetObjectSelection(int id, bool isSelected)
 	{
 		_polyObjects [id].layer = isSelected ? LayerMask.NameToLayer ("PolyObjectSelected") : 0;
-		_polyObjects [id].GetComponent<PolyObjectController> ()._selected = isSelected;
+		_polyObjects [id].GetComponent<PolyObjectController> ().SetSelection(isSelected);
 		if (isSelected && !_selectedObects.Contains (id)) {
 			_selectedObects.Add (id);
 		} 
@@ -97,5 +100,22 @@ public class PolyWorldController : MonoBehaviour {
 	{
 		var go = _polyObjects [id];
 		go.GetComponent<MeshRenderer> ().enabled = isShow;
+	}
+
+	public void OnRTEnter()
+	{
+		Debug.Log ("On rt enter");
+		foreach (var go in _polyObjects.Values) {
+			go.GetComponent<PolyObjectController>().SetTranslation(true);
+		}
+	}
+
+	public void OnRTExit()
+	{
+		Debug.Log ("on rt exit");
+		
+		foreach (var go in _polyObjects.Values) {
+			go.GetComponent<PolyObjectController>().SetTranslation(false);
+		}
 	}
 }

@@ -3,6 +3,12 @@ using System.Collections;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
+public interface IRuntimeTranslationCallBack
+{
+	void OnRTEnter ();
+	void OnRTExit ();
+}
+
 public class RuntimeTranslation : MonoBehaviour {
 	public GameObject test_target;
 	public GameObject test_target2;
@@ -31,6 +37,13 @@ public class RuntimeTranslation : MonoBehaviour {
 	enum RTA {R,G,B,C};
 
 	private RTT _currentWorkingState = RTT.NONE;
+
+	IRuntimeTranslationCallBack _callback;
+
+	public void SetCallBack(IRuntimeTranslationCallBack cb)
+	{
+		_callback = cb;
+	}
 	
 	// Use this for initialization
 	void Start () {
@@ -110,11 +123,15 @@ public class RuntimeTranslation : MonoBehaviour {
 		gizmo.SetActive (isSelected);
 
 		if (isSelected) {
+			if (_currentWorkingState == RTT.NONE) {
+				_callback.OnRTEnter();
+			}
 			_currentWorkingState = t;
 			ResetGizmoPositions();
 		} else {
 			if (_currentWorkingState == t) {
 				_currentWorkingState = RTT.NONE;
+				_callback.OnRTExit();
 			}
 		}
 
@@ -124,11 +141,11 @@ public class RuntimeTranslation : MonoBehaviour {
 
 		bool notlgbtn = t == RTT.SCALE && isSelected;
 		btn_global_local.SetActive (!notlgbtn);
-		
-		RefreshMaterial ();
+
 		RefreshGizmoGlocalLocal ();
 	}
 
+	/*
 	void RefreshMaterial()
 	{
 		if (_oldMaterial != null) {
@@ -139,7 +156,7 @@ public class RuntimeTranslation : MonoBehaviour {
 				go.GetComponent<MeshRenderer> ().material = mat;
 			}
 		}
-	}
+	}*/
 
 	bool GetBtnSelection(RTT t)
 	{
@@ -441,11 +458,6 @@ public class RuntimeTranslation : MonoBehaviour {
 		gizmo_scale.transform.localScale = scale;
 
 //		Debug.Log ("distance " + distance.ToString ());
-	}
-
-	void SetMaterial(bool useHere)
-	{
-
 	}
 
 	public void SetAllObjects(List<GameObject> objects)
