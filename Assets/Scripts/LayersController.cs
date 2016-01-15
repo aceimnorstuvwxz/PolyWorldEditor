@@ -16,8 +16,7 @@ public class LayersController : MonoBehaviour {
 //	private List<GameObject> _layerList;
 	private Dictionary<int, GameObject> _layerDict;
 	private List<int> _selectedLayers;
-
-
+	private CameraController _cameraController;	
 	// Use this for initialization
 	void Start () {
 		_content = GameObject.Find ("LayersContent");
@@ -25,6 +24,9 @@ public class LayersController : MonoBehaviour {
 		_selectedLayers = new List<int> ();
 		_polyWorldController = GameObject.Find ("PolyWorldSpace").GetComponent<PolyWorldController> ();
 		name_input.SetActive (false);
+		_cameraController = GameObject.Find ("CameraBase").GetComponent<CameraController> ();
+		
+
 	}
 	
 	// Update is called once per frame
@@ -116,6 +118,7 @@ public class LayersController : MonoBehaviour {
 		}
 
 		_polyWorldController.RefreshSelection ();
+		_cameraController.OnSelectNewLayer ();
 
 	}
 

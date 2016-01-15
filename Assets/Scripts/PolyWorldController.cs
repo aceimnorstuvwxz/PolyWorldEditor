@@ -11,6 +11,7 @@ public class PolyWorldController : MonoBehaviour, IRuntimeTranslationCallBack{
 	private Dictionary<int, GameObject> _polyObjects;
 	private List<int> _selectedObects;
 
+
 	enum PresettedObjectType { Cube, Floor, Point, Sphere};
 
 	void Start () {
@@ -134,6 +135,16 @@ public class PolyWorldController : MonoBehaviour, IRuntimeTranslationCallBack{
 		
 		foreach (var go in _polyObjects.Values) {
 			go.GetComponent<PolyObjectController>().SetTranslation(false);
+		}
+	}
+
+	public Vector3 GetCameraFocusPosition()
+	{
+		if (_selectedObects.Count > 0) {
+			int id = _selectedObects [_selectedObects.Count - 1];
+			return _polyObjects [id].transform.position;
+		} else {
+			return Vector3.zero;
 		}
 	}
 }
