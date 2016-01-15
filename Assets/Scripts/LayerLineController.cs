@@ -32,11 +32,16 @@ public class LayerLineController : MonoBehaviour {
 		GetComponentInChildren<Text> ().text = name;
 	}
 
+	public string GetLayerName()
+	{
+		return GetComponentInChildren<Text> ().text;
+	}
+
 	public void OnClickSelection() 
 	{
 		Debug.Log ("select layer id=" + layer_id.ToString ());
 
-		_layersController.SelectLayer (layer_id);
+		_layersController.OnSelectLayer (layer_id);
 	}
 
 	public void SetSelection(bool isSelected)

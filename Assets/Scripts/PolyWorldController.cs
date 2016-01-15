@@ -36,6 +36,24 @@ public class PolyWorldController : MonoBehaviour, IRuntimeTranslationCallBack{
 		_polyObjects.Add (id, obj);
 	}
 
+	public void DuplicateObject(int srcId, int desId)
+	{
+		Debug.Log ("DuplicateObject src" + srcId.ToString() + " des" + desId.ToString());
+		
+		GameObject obj = Instantiate (poly_obj_fab) as GameObject;
+		obj.transform.SetParent (transform);
+
+		GameObject srcObj = _polyObjects [srcId];
+
+		obj.transform.localPosition = srcObj.transform.localPosition + Vector3.one;
+		obj.transform.localRotation = srcObj.transform.localRotation;
+		obj.transform.localScale = srcObj.transform.localScale;
+
+		obj.GetComponent<PolyObjectController> ().DuplicateFrom (srcObj.GetComponent<PolyObjectController> ());
+
+		_polyObjects.Add (desId, obj);
+	}
+
 	public void DeletePolyObject(int id)
 	{
 		Debug.Log ("DeletePolyObject " + id.ToString());

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
@@ -53,7 +53,7 @@ public class LayersController : MonoBehaviour {
 
 		_polyWorldController.NewPolyObject (layerId);
 		
-		SelectLayer (layerId);
+		OnSelectLayer (layerId);
 	}
 
 	void RefreshContentLayout()
@@ -95,7 +95,7 @@ public class LayersController : MonoBehaviour {
 		_polyWorldController.RefreshSelection ();
 	}
 
-	public void SelectLayer(int layerId)
+	public void OnSelectLayer(int layerId)
 	{
 		if (Input.GetKey ("right shift") || Input.GetKey ("left shift")) {
 			//multiple selection
@@ -113,6 +113,23 @@ public class LayersController : MonoBehaviour {
 			_selectedLayers.Add(layerId);
 			_layerDict [layerId].GetComponent<LayerLineController> ().SetSelection (true);
 			_polyWorldController.SetObjectSelection(layerId, true);
+		}
+
+		_polyWorldController.RefreshSelection ();
+
+	}
+
+	void RefreshLayerSelection()
+	{
+		foreach (var id in _layerDict.Keys) {
+			_layerDict [id].GetComponent<LayerLineController> ().SetSelection (false);
+			_polyWorldController.SetObjectSelection(id, false);
+		}
+
+		foreach (var id in _selectedLayers) {
+			
+			_layerDict [id].GetComponent<LayerLineController> ().SetSelection (true);
+			_polyWorldController.SetObjectSelection(id, true);
 		}
 
 		_polyWorldController.RefreshSelection ();
@@ -139,6 +156,36 @@ public class LayersController : MonoBehaviour {
 	public void OnClickDuplicate()
 	{
 		Debug.Log ("duplicate");
+
+		List<int> newSelected = new List<int> ();
+
+		foreach (int id in _selectedLayers) {
+			int newLayerId = _layerIndex++;
+
+			
+			var newLine = Instantiate (layer_line_fab) as GameObject;
+			newLine.transform.SetParent (_content.transform);
+			
+			_layerDict.Add (newLayerId, newLine);
+			
+			var layerLineCon = newLine.GetComponent<LayerLineController> ();
+			layerLineCon.SetLayerId(newLayerId);
+			var oldLayerName = 	_layerDict[id].GetComponent<LayerLineController>().GetLayerName();
+
+			layerLineCon.SetLayerName(oldLayerName);
+
+			
+//			_polyWorldController.NewPolyObject (newLayerId);
+
+			_polyWorldController.DuplicateObject(id, newLayerId);
+
+			newSelected.Add(newLayerId);
+		}
+
+		_selectedLayers = newSelected;
+
+		RefreshContentLayout ();
+		RefreshLayerSelection ();
 	}
 
 	private int _underEditingLayerId;

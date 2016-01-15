@@ -644,4 +644,27 @@ public class PolyObjectController : MonoBehaviour {
 		_flagTranslation = isTranslation;
 		RefreshMaterialSetting ();
 	}
+
+	
+	private PolyObjectController _dupliOther;
+	public void DuplicateFrom(PolyObjectController other)
+	{
+		// at this time, Start() may not be called!
+		_dupliOther = other;
+		Invoke ("DuplicateFromAst", 0.1f);
+	}
+	
+	void DuplicateFromAst()
+	{
+		PolyObjectController other = _dupliOther;
+		Debug.Assert (_editSpace != null);
+		for (int x = 0; x < other._editSpace.GetLength(0); x++) {
+			for (int y = 0; y < other._editSpace.GetLength(1); y++) {
+				for (int z =0; z < other._editSpace.GetLength(2); z++) {
+					_editSpace [x, y, z] = other._editSpace [x, y, z];
+				}
+			}
+		}
+		RefreshMesh ();
+	}
 }
