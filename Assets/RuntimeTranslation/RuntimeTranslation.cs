@@ -64,7 +64,7 @@ public class RuntimeTranslation : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		// escape to exit any edit mode
-		if (Input.GetKeyDown ("escape")) {
+		if (Input.GetKeyDown ("escape") || Input.GetKeyDown ("q")) {
 			Esc();
 		}
 
@@ -75,6 +75,18 @@ public class RuntimeTranslation : MonoBehaviour {
 		// do real work!
 		if (_mainTargetObject != null && _currentWorkingState != RTT.NONE) {
 			UpdateTranslation();
+		}
+
+		if (Input.GetKeyDown ("w")) {
+			OnClickBtnMove();
+		}
+
+		if (Input.GetKeyDown ("e")) {
+			OnClickBtnRotate();
+		}
+
+		if (Input.GetKeyDown ("r")) {
+			OnClickBtnScale();
 		}
 	}
 
