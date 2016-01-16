@@ -39,6 +39,15 @@ public class CameraController : MonoBehaviour {
 				GetComponent<TransformSmoother>().SetLocalPosition(_polyWorldController.GetCameraFocusPosition(), 0.3f);
 			}
 		}
+
+		if (Input.GetMouseButton (2)) {
+			Debug.Log("mouse middle");
+			float x = Input.GetAxis("Mouse X");
+			float y = Input.GetAxis("Mouse Y");
+			float move_scale = -1f;
+
+			transform.position = transform.position + camera_node.transform.right * x * move_scale + camera_node.transform.up * y * move_scale;
+		}
 	}
 
 	public void OnSelectNewLayer()
