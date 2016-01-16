@@ -32,9 +32,11 @@ public class CameraController : MonoBehaviour {
 		if (Input.GetKeyDown ("f")) {
 			RaycastHit hit;
 			if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit)){
-				transform.position = hit.point;
+//				transform.position = hit.point;
+				GetComponent<TransformSmoother>().SetLocalPosition(hit.point, 0.3f);
 			} else {
-				transform.position = _polyWorldController.GetCameraFocusPosition();
+//				transform.position = _polyWorldController.GetCameraFocusPosition();
+				GetComponent<TransformSmoother>().SetLocalPosition(_polyWorldController.GetCameraFocusPosition(), 0.3f);
 			}
 		}
 	}
