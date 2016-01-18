@@ -12,7 +12,7 @@ public class PolyWorldController : MonoBehaviour, IRuntimeTranslationCallBack{
 	private List<int> _selectedObects;
 
 
-	enum PresettedObjectType { Cube, Floor, Point, Sphere};
+	public enum PresetType { Sphere, Cube, Floor}; // floor = plane
 
 	void Start () {
 
@@ -95,6 +95,11 @@ public class PolyWorldController : MonoBehaviour, IRuntimeTranslationCallBack{
 			go.GetComponent<PolyObjectController>().AddCube();
 			Debug.Log("add cube ");
 		}
+	}
+
+	public void AddPreset(PresetType t, int value)
+	{
+//		Debug.Log ("add preset");
 	}
 
 	public void RefreshMaterial(List<int> materials)
