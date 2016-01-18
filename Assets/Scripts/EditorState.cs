@@ -57,4 +57,9 @@ public class EditorState : MonoBehaviour {
 				PolyWorldController.PresetType.Floor;
 		_polyWorldController.AddPreset (t, _presetValue);
 	}
+
+	public void OnClickBtnClear()
+	{
+		_polyWorldController.ClearA();
+	}
 }

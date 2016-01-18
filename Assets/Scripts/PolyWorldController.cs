@@ -126,6 +126,14 @@ public class PolyWorldController : MonoBehaviour, IRuntimeTranslationCallBack{
 		}
 	}
 
+	public void ClearA()
+	{
+		foreach (int id in _selectedObects) {
+			var go = _polyObjects[id];
+			go.GetComponent<PolyObjectController>().ClearA();
+		}
+	}
+
 
 	public void RefreshMaterial(List<int> materials)
 	{

@@ -349,6 +349,25 @@ public class PolyObjectController : MonoBehaviour {
 
 		}
 	}
+
+	public void ClearA()
+	{
+		Debug.Log ("0");
+		int cubeHalfWidth = EDITOR_SPACE_HALF_WIDTH;
+		Debug.Assert (_materialsController != null);
+		
+		int mat = _materialsController.GetBrushMaterial ();
+		
+		for (int x = -cubeHalfWidth; x<= cubeHalfWidth; x++) {
+			for (int y = -cubeHalfWidth; y <= cubeHalfWidth; y++) {
+				for (int z = -cubeHalfWidth; z <= cubeHalfWidth; z++){
+					SetEditSpacePoint(x,y,z,0);
+				}
+			}
+		}
+		
+		RefreshMesh ();
+	}
 	
 	void AddCube(int r)
 	{
