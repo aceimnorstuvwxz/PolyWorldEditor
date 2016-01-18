@@ -11,10 +11,6 @@ public class PolyObjectController : MonoBehaviour {
 	public Material mat_out_line;
 	
 	private int EDITOR_SPACE_HALF_WIDTH = 20; //500->11G memory, 100 11G/125=500M
-	//
-	//	private List<Vector3> _vertices;
-	//	private List<Vector2> _uvs;
-	//	private List<int> _triangles;
 	
 	private int[,,] _editSpace; // 0 ? -> not solid, 1-N ->solid, with material index
 	
@@ -40,25 +36,8 @@ public class PolyObjectController : MonoBehaviour {
 	private RuntimeTranslation _runtimeTranslation;
 
 	private ColorPicker _colorPicker;
-	
-	// VoxelPoint, the meta points of marching cubes
-	class IntVector3
-	{
-		// direction relation is same to unity scene editor
-		public int x;
-		public int y;
-		public int z;
-		
-		public IntVector3(int x, int y, int z) {
-			this.x = x;
-			this.y = y;
-			this.z = z;
-		}
-		
-		public Vector3 ToFloat() {
-			return new Vector3 (x * 1f, y * 1f, z * 1f);
-		}
-	}
+
+
 	
 	
 	private MaterialsController _materialsController;
