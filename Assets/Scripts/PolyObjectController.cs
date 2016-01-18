@@ -42,8 +42,12 @@ public class PolyObjectController : MonoBehaviour {
 	
 	private MaterialsController _materialsController;
 	private MeshRenderer _meshRenderer;
+
+	private MarchingCubesEngine _marchingCubesEngine;
 	void Start () 
 	{
+		_marchingCubesEngine = GameObject.Find ("MarchingCubesEngine").GetComponent<MarchingCubesEngine> ();
+		Debug.Assert (_marchingCubesEngine != null);
 		_colorPicker = GameObject.Find ("ColorPicker").GetComponent<ColorPicker> ();
 		_runtimeTranslation = GameObject.Find ("RuntimeTranslation").GetComponent<RuntimeTranslation> ();
 		_editorState = GameObject.Find ("UICanvas").GetComponent<EditorState> ();
@@ -80,6 +84,7 @@ public class PolyObjectController : MonoBehaviour {
 	
 	public void RefreshMesh()
 	{
+		/*
 		_vertices = new List<Vector3> ();
 		_triangles = new List<int> ();
 		_colors = new List<Color> ();
@@ -92,20 +97,21 @@ public class PolyObjectController : MonoBehaviour {
 					MarchPerCube(x,y,z);
 				}
 			}
-		}
-		
-		//		setCurrentMeshFilter ();
+		}*/
+
+
+		var ret = _marchingCubesEngine.Marching (_editSpace, new IntVector3 (0, 0, 0));
 		
 		Mesh mesh = new Mesh();
 		var meshFilter = GetComponent<MeshFilter> ();
 		meshFilter.mesh = mesh;
-		mesh.vertices = _vertices.ToArray();
-		mesh.triangles = _triangles.ToArray();
+		mesh.vertices = ret.vertices.ToArray ();//_vertices.ToArray();
+		mesh.triangles = ret.triangles.ToArray ();// _triangles.ToArray();
 		//		mesh.uv = _uvs.ToArray();
 		mesh.RecalculateNormals();
-		mesh.colors = _colors.ToArray ();
+		mesh.colors = ret.colors.ToArray ();//_colors.ToArray ();
 		
-		Debug.Log ("TerrainFab vertices = " + _vertices.Count.ToString());
+//		Debug.Log ("TerrainFab vertices = " + _vertices.Count.ToString());
 		
 		var meshColider = GetComponent<MeshCollider> ();
 		meshColider.sharedMesh = mesh;
