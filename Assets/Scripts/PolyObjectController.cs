@@ -330,11 +330,30 @@ public class PolyObjectController : MonoBehaviour {
 			}
 		}
 	}
+
+	public void AddPreset(PolyWorldController.PresetType t, int value)
+	{
+		switch (t) {
+			
+		case PolyWorldController.PresetType.Cube:
+			AddCube(value);
+			break;
+			
+		case PolyWorldController.PresetType.Sphere:
+			AddSphere(value);
+			break;
+			
+		case PolyWorldController.PresetType.Floor://plane
+			AddFloor(value);
+			break;
+
+		}
+	}
 	
-	public void AddCube()
+	void AddCube(int r)
 	{
 		Debug.Log ("AddCube");
-		int cubeHalfWidth = 5;
+		int cubeHalfWidth = r;
 		Debug.Assert (_materialsController != null);
 
 		int mat = _materialsController.GetBrushMaterial ();
@@ -348,8 +367,49 @@ public class PolyObjectController : MonoBehaviour {
 		}
 
 		RefreshMesh ();
-		
 	}
+
+	void AddSphere(int r)
+	{
+		Debug.Log ("Add sphere");
+		int cubeHalfWidth = r;
+		Debug.Assert (_materialsController != null);
+		
+		int mat = _materialsController.GetBrushMaterial ();
+		
+		for (int x = -cubeHalfWidth; x<= cubeHalfWidth; x++) {
+			for (int y = -cubeHalfWidth; y <= cubeHalfWidth; y++) {
+				for (int z = -cubeHalfWidth; z <= cubeHalfWidth; z++){
+					if ( x*x + y*y + z*z <= r*r) {
+						SetEditSpacePoint(x,y,z,mat);
+					}
+				}
+			}
+		}
+		
+		RefreshMesh ();
+	}
+
+	void AddFloor(int r)
+	{
+		Debug.Log ("Add floor");
+		int cubeHalfWidth = r;
+		Debug.Assert (_materialsController != null);
+		
+		int mat = _materialsController.GetBrushMaterial ();
+		
+		for (int x = -cubeHalfWidth; x<= cubeHalfWidth; x++) {
+//			for (int y = -cubeHalfWidth; y <= cubeHalfWidth; y++) {
+				for (int z = -cubeHalfWidth; z <= cubeHalfWidth; z++){
+					SetEditSpacePoint(x,0,z,mat);
+				}
+//			}
+		}
+		
+		RefreshMesh ();
+	}
+
+
 	
 	
 	private float _emissionWaitTime = 0;

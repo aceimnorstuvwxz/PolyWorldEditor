@@ -90,17 +90,42 @@ public class PolyWorldController : MonoBehaviour, IRuntimeTranslationCallBack{
 
 	public void OnClickAddCube()
 	{
-		foreach (int id in _selectedObects) {
-			var go = _polyObjects[id];
-			go.GetComponent<PolyObjectController>().AddCube();
-			Debug.Log("add cube ");
-		}
+//		foreach (int id in _selectedObects) {
+//			var go = _polyObjects[id];
+//			go.GetComponent<PolyObjectController>().AddCube();
+//			Debug.Log("add cube ");
+//		}
 	}
 
 	public void AddPreset(PresetType t, int value)
 	{
 //		Debug.Log ("add preset");
+		/*
+		switch (t) {
+		case PresetType.Cube:
+			AddPresetCubeAst(value);
+			break;
+			
+		case PresetType.Sphere:
+			AddPresetSphereAst(value);
+			break;
+			
+		case PresetType.Floor:
+			AddPresetFloorAst(value);
+			break;
+
+		default:
+			Debug.Log("unimplemented preset type" + t.ToString());
+			Debug.Assert(false);
+		}
+		*/
+
+		foreach (int id in _selectedObects) {
+			var go = _polyObjects[id];
+			go.GetComponent<PolyObjectController>().AddPreset(t, value);
+		}
 	}
+
 
 	public void RefreshMaterial(List<int> materials)
 	{
