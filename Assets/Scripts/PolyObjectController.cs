@@ -100,7 +100,7 @@ public class PolyObjectController : MonoBehaviour {
 		}*/
 
 
-		var ret = _marchingCubesEngine.Marching (_editSpace, new IntVector3 (0, 0, 0));
+		var ret = _marchingCubesEngine.Marching (_editSpace, new IntVector3 (-EDITOR_SPACE_HALF_WIDTH,-EDITOR_SPACE_HALF_WIDTH,-EDITOR_SPACE_HALF_WIDTH));
 		
 		Mesh mesh = new Mesh();
 		var meshFilter = GetComponent<MeshFilter> ();

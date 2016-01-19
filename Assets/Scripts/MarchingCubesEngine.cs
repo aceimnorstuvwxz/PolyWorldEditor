@@ -84,7 +84,7 @@ public class MarchingCubesEngine: MonoBehaviour
 	}
 
 	void AddVertex(Vector3 node, Color co) {
-		_vertices.Add (node);
+		_vertices.Add (node + _origin.ToFloat());
 		//		_uvs.Add (node.toUV (_voxels.GetLength(0), _voxels.GetLength(2)));
 		_colors.Add (co);
 	}
