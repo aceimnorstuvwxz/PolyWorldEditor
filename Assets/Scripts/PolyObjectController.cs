@@ -290,6 +290,7 @@ public class PolyObjectController : MonoBehaviour {
 		if (_vertices.Count > 64990) {
 			Debug.Log("vertice count out ");
 			Debug.Assert(false);
+			return;
 		}
 		
 		_triangles.Add (_vertices.Count);
@@ -302,34 +303,22 @@ public class PolyObjectController : MonoBehaviour {
 		AddVertex(c, GetMatColor(matC));
 		
 	}
-	
-	
-	public void AddPlane ()
-	{
-		int planeYPos = 0;
-		int mat = _materialsController.GetBrushMaterial ();
-		
-		for (int x = -EDITOR_SPACE_HALF_WIDTH; x <= EDITOR_SPACE_HALF_WIDTH; x++) {
-			for (int z = -EDITOR_SPACE_HALF_WIDTH; z <= EDITOR_SPACE_HALF_WIDTH; z++) {
-				SetEditSpacePoint(x,planeYPos,z,mat);
-			}
-		}
-	}
 
-	public void AddPreset(PolyWorldController.PresetType t, int value)
+	public void AddPreset(PolyWorldController.PresetType t, int value, float fillrate)
 	{
+		Debug.Log ("aa");
 		switch (t) {
 			
 		case PolyWorldController.PresetType.Cube:
-			AddCube(value);
+			AddCube(value, fillrate);
 			break;
 			
 		case PolyWorldController.PresetType.Sphere:
-			AddSphere(value);
+			AddSphere(value, fillrate);
 			break;
 			
 		case PolyWorldController.PresetType.Floor://plane
-			AddFloor(value);
+			AddFloor(value, fillrate);
 			break;
 
 		}
@@ -354,9 +343,9 @@ public class PolyObjectController : MonoBehaviour {
 		RefreshMesh ();
 	}
 	
-	void AddCube(int r)
+	void AddCube(int r, float fillrate)
 	{
-		Debug.Log ("AddCube");
+		Debug.Log ("AddCube"+fillrate.ToString());
 		int cubeHalfWidth = r;
 		Debug.Assert (_materialsController != null);
 
@@ -365,7 +354,8 @@ public class PolyObjectController : MonoBehaviour {
 		for (int x = -cubeHalfWidth; x<= cubeHalfWidth; x++) {
 			for (int y = -cubeHalfWidth; y <= cubeHalfWidth; y++) {
 				for (int z = -cubeHalfWidth; z <= cubeHalfWidth; z++){
-					SetEditSpacePoint(x,y,z,mat);
+					if (Random.value < fillrate) 
+						SetEditSpacePoint(x,y,z,mat);
 				}
 			}
 		}
@@ -373,7 +363,7 @@ public class PolyObjectController : MonoBehaviour {
 		RefreshMesh ();
 	}
 
-	void AddSphere(int r)
+	void AddSphere(int r, float fillrate)
 	{
 		Debug.Log ("Add sphere");
 		int cubeHalfWidth = r;
@@ -385,7 +375,8 @@ public class PolyObjectController : MonoBehaviour {
 			for (int y = -cubeHalfWidth; y <= cubeHalfWidth; y++) {
 				for (int z = -cubeHalfWidth; z <= cubeHalfWidth; z++){
 					if ( x*x + y*y + z*z <= r*r) {
-						SetEditSpacePoint(x,y,z,mat);
+						if (Random.value < fillrate) 
+							SetEditSpacePoint(x,y,z,mat);
 					}
 				}
 			}
@@ -394,7 +385,7 @@ public class PolyObjectController : MonoBehaviour {
 		RefreshMesh ();
 	}
 
-	void AddFloor(int r)
+	void AddFloor(int r, float fillrate)
 	{
 		Debug.Log ("Add floor");
 		int cubeHalfWidth = r;
@@ -405,7 +396,8 @@ public class PolyObjectController : MonoBehaviour {
 		for (int x = -cubeHalfWidth; x<= cubeHalfWidth; x++) {
 //			for (int y = -cubeHalfWidth; y <= cubeHalfWidth; y++) {
 				for (int z = -cubeHalfWidth; z <= cubeHalfWidth; z++){
-					SetEditSpacePoint(x,0,z,mat);
+					if (Random.value < fillrate) 
+						SetEditSpacePoint(x,0,z,mat);
 				}
 //			}
 		}

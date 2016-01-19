@@ -97,7 +97,7 @@ public class PolyWorldController : MonoBehaviour, IRuntimeTranslationCallBack{
 //		}
 	}
 
-	public void AddPreset(PresetType t, int value)
+	public void AddPreset(PresetType t, int value, float fillrate)
 	{
 //		Debug.Log ("add preset");
 		/*
@@ -122,7 +122,7 @@ public class PolyWorldController : MonoBehaviour, IRuntimeTranslationCallBack{
 
 		foreach (int id in _selectedObects) {
 			var go = _polyObjects[id];
-			go.GetComponent<PolyObjectController>().AddPreset(t, value);
+			go.GetComponent<PolyObjectController>().AddPreset(t, value, fillrate);
 		}
 	}
 

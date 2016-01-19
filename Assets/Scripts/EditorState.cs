@@ -11,6 +11,7 @@ public class EditorState : MonoBehaviour {
 
 
 	public GameObject text_preset_value;
+	public GameObject text_preset_fillrate;
 	public GameObject drop_preset_types;
 
 	private Text _textEmit;
@@ -18,6 +19,7 @@ public class EditorState : MonoBehaviour {
 	private PolyWorldController _polyWorldController;
 
 	private int _presetValue = 1;
+	private float _presetFillrate = 1f;
 
 	void Start()
 	{
@@ -45,6 +47,12 @@ public class EditorState : MonoBehaviour {
 		_presetValue = iv;
 	}
 
+	public void OnPresetFillrateChange(float value)
+	{
+		_presetFillrate = value;
+		text_preset_fillrate.GetComponent<Text> ().text = _presetFillrate.ToString ();
+	}
+
 	public void OnClickAddPreset()
 	{
 		int v = drop_preset_types.GetComponent<Dropdown> ().value;
@@ -55,7 +63,7 @@ public class EditorState : MonoBehaviour {
 		PolyWorldController.PresetType t = v == 0 ? PolyWorldController.PresetType.Sphere :
 			v == 1 ? PolyWorldController.PresetType.Cube : 
 				PolyWorldController.PresetType.Floor;
-		_polyWorldController.AddPreset (t, _presetValue);
+		_polyWorldController.AddPreset (t, _presetValue, _presetFillrate);
 	}
 
 	public void OnClickBtnClear()

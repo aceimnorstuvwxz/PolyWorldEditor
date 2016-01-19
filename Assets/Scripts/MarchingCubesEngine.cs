@@ -99,6 +99,7 @@ public class MarchingCubesEngine: MonoBehaviour
 		if (_vertices.Count > 64990) {
 			Debug.Log("vertice count out ");
 			Debug.Assert(false);
+			return;
 		}
 		
 		_triangles.Add (_vertices.Count);
