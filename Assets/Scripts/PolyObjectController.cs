@@ -36,9 +36,6 @@ public class PolyObjectController : MonoBehaviour {
 	private RuntimeTranslation _runtimeTranslation;
 
 	private ColorPicker _colorPicker;
-
-
-	
 	
 	private MaterialsController _materialsController;
 	private MeshRenderer _meshRenderer;

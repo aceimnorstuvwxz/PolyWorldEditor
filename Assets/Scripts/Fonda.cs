@@ -17,6 +17,11 @@ public class IntVector3
 	public Vector3 ToFloat() {
 		return new Vector3 (x * 1f, y * 1f, z * 1f);
 	}
+
+	public IntVector3 multi(int p)
+	{
+		return new IntVector3(x * p, y * p, z * p);
+	}
 }
 
 public class Fonda 
