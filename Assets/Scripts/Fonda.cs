@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+
 
 public class IntVector3
 {
@@ -21,6 +23,23 @@ public class IntVector3
 	public IntVector3 multi(int p)
 	{
 		return new IntVector3(x * p, y * p, z * p);
+	}
+
+	public class EqualityComparer : IEqualityComparer<IntVector3> {
+		
+		public bool Equals(IntVector3 a, IntVector3 b) {
+			return a.x == b.x && a.y == b.y && a.z == b.z;
+		}
+		
+		public int GetHashCode(IntVector3 a) {
+			int c = a.x ^ a.y ^ a.z;
+			return c.GetHashCode();
+		}
+	}
+
+	public string ToString()
+	{
+		return "" + x.ToString () + ", " + y.ToString () + ", " + z.ToString ();
 	}
 }
 

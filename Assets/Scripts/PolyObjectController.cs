@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class PolyObjectController : MonoBehaviour {
 
+	public GameObject poly_object_segment_fab;
+
 	public bool use_lerp_color = true;
 
 	public Material mat_normal;
@@ -13,12 +15,65 @@ public class PolyObjectController : MonoBehaviour {
 	private int EDITOR_SPACE_HALF_WIDTH = 20; //500->11G memory, 100 11G/125=500M
 	
 	private int[,,] _editSpace; // 0 ? -> not solid, 1-N ->solid, with material index
+
+	private Dictionary<IntVector3, GameObject> _segments;
 	
 	private EditorState _editorState;
+
+	int MyDivision(int a, int b)
+	{
+		int s = a / b;
+		if (a < 0 && a % b != 0) {
+			s--;
+		}
+		return s;
+	}
+
+	IntVector3 WorldPosition2SegmentIndex(int x, int y, int z)
+	{
+		return new IntVector3 (MyDivision (x, PolyObjectSegment.poly_object_segment_width),
+		                      MyDivision (y, PolyObjectSegment.poly_object_segment_width),
+		                      MyDivision (z, PolyObjectSegment.poly_object_segment_width));
+	}
+
+	int MyModulo(int a, int b) 
+	{
+		int s = a % b;
+		if (s < 0) {
+			s += b;
+		}
+		return s;
+	}
+
+	IntVector3 WorldPosition2SegmentPosition(int x, int y, int z)
+	{
+		
+		return new IntVector3 (MyModulo (x, PolyObjectSegment.poly_object_segment_width),
+		                       MyModulo (y, PolyObjectSegment.poly_object_segment_width),
+		                       MyModulo (z, PolyObjectSegment.poly_object_segment_width));
+	}
 	
 	void SetEditSpacePoint(int x, int y, int z, int value)
 	{
-		_editSpace [x + EDITOR_SPACE_HALF_WIDTH, y + EDITOR_SPACE_HALF_WIDTH, z + EDITOR_SPACE_HALF_WIDTH] = value;
+//		_editSpace [x + EDITOR_SPACE_HALF_WIDTH, y + EDITOR_SPACE_HALF_WIDTH, z + EDITOR_SPACE_HALF_WIDTH] = value;
+		IntVector3 segmentIndex = WorldPosition2SegmentIndex (x, y, z);
+		IntVector3 voxelPoint = WorldPosition2SegmentPosition (x, y, z);
+
+		if (value > 0 && !_segments.ContainsKey (segmentIndex)) {
+			GameObject segment = Instantiate(poly_object_segment_fab) as GameObject;
+			_segments[segmentIndex] = segment;
+			segment.transform.SetParent(transform);
+			var seg = segment.GetComponent<PolyObjectSegment>();
+			seg._segmentIndex = segmentIndex;
+			seg.Init();
+
+		}
+
+		if ((value == 0 && _segments.ContainsKey (segmentIndex)) ||
+		    (value > 0)) {
+			var seg = _segments[segmentIndex].GetComponent<PolyObjectSegment>();
+			seg.SetVoxelPoint(voxelPoint, value);
+		}
 	}
 	
 	int GetEditSpacePoint(int x, int y, int z)
@@ -43,6 +98,7 @@ public class PolyObjectController : MonoBehaviour {
 	private MarchingCubesEngine _marchingCubesEngine;
 	void Start () 
 	{
+		_segments = new Dictionary<IntVector3, GameObject> (new IntVector3.EqualityComparer ());
 		_marchingCubesEngine = GameObject.Find ("MarchingCubesEngine").GetComponent<MarchingCubesEngine> ();
 		Debug.Assert (_marchingCubesEngine != null);
 		_colorPicker = GameObject.Find ("ColorPicker").GetComponent<ColorPicker> ();
@@ -95,6 +151,10 @@ public class PolyObjectController : MonoBehaviour {
 				}
 			}
 		}*/
+
+		foreach (var go in _segments.Values) {
+			go.GetComponent<PolyObjectSegment>().RefreshMesh();
+		}
 
 
 		var ret = _marchingCubesEngine.Marching (_editSpace, new IntVector3 (-EDITOR_SPACE_HALF_WIDTH,-EDITOR_SPACE_HALF_WIDTH,-EDITOR_SPACE_HALF_WIDTH));

@@ -14,11 +14,15 @@ public class PolyObjectSegment : MonoBehaviour {
 
 	private MarchingCubesEngine _marchingCubesEngine;
 
-	void Start () 
+	public void Init()
 	{
 		_marchingCubesEngine = GameObject.Find ("MarchingCubesEngine").GetComponent<MarchingCubesEngine> ();
 		_editSpace = new int[poly_object_segment_width + 1, poly_object_segment_width + 1, poly_object_segment_width + 1];
 		_count = 0;
+	}
+
+	void Start () 
+	{
 	}
 	
 	void Update () 
@@ -28,6 +32,7 @@ public class PolyObjectSegment : MonoBehaviour {
 
 	public void SetVoxelPoint(IntVector3 relativePosition, int material)
 	{
+		Debug.Log ("" + relativePosition.ToString ());
 		int old = _editSpace[relativePosition.x, relativePosition.y, relativePosition.z];
 		if (old == 0 && material > 0) {
 			_count ++;

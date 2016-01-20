@@ -20,6 +20,7 @@ public class PolyWorldController : MonoBehaviour, IRuntimeTranslationCallBack{
 		_selectedObects = new List<int> ();
 
 		runtime_translation.GetComponent<RuntimeTranslation> ().SetCallBack (this);
+
 	}
 	
 	void Update () {
