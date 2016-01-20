@@ -32,7 +32,7 @@ public class PolyObjectSegment : MonoBehaviour {
 
 	public void SetVoxelPoint(IntVector3 relativePosition, int material)
 	{
-		Debug.Log ("" + relativePosition.ToString ());
+//		Debug.Log ("" + relativePosition.ToString ());
 		int old = _editSpace[relativePosition.x, relativePosition.y, relativePosition.z];
 		if (old == 0 && material > 0) {
 			_count ++;
@@ -60,6 +60,7 @@ public class PolyObjectSegment : MonoBehaviour {
 
 	public void RefreshMesh()
 	{
+		Debug.Log ("seg refresh mesh");
 		var ret = _marchingCubesEngine.Marching (_editSpace, _segmentIndex.multi (poly_object_segment_width));
 		
 		Mesh mesh = new Mesh();
