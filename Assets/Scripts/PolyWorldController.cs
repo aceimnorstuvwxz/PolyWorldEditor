@@ -78,7 +78,6 @@ public class PolyWorldController : MonoBehaviour, IRuntimeTranslationCallBack{
 
 	public void SetObjectSelection(int id, bool isSelected)
 	{
-		_polyObjects [id].layer = isSelected ? LayerMask.NameToLayer ("PolyObjectSelected") : 0;
 		_polyObjects [id].GetComponent<PolyObjectController> ().SetSelection(isSelected);
 		if (isSelected && !_selectedObects.Contains (id)) {
 			_selectedObects.Add (id);

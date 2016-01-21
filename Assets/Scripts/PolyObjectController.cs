@@ -62,6 +62,7 @@ public class PolyObjectController : MonoBehaviour {
 		seg._segmentIndex = index;
 		seg._parentController = this;
 		seg.Init();
+		segment.layer = _selected ? LayerMask.NameToLayer ("PolyObjectSelected") : 0;
 	}
 
 	void SetEditSpacePoint(int x, int y, int z, int value)
@@ -168,12 +169,19 @@ public class PolyObjectController : MonoBehaviour {
 	
 	int GetEditSpacePoint(int x, int y, int z)
 	{
-		return _editSpace [x + EDITOR_SPACE_HALF_WIDTH, y + EDITOR_SPACE_HALF_WIDTH, z + EDITOR_SPACE_HALF_WIDTH];
+		var index = WorldPosition2SegmentIndex (x, y, z);
+		var point = WorldPosition2SegmentPosition (x, y, z);
+
+		if (_segments.ContainsKey (index)) {
+			return _segments [index].GetComponent<PolyObjectSegment> ().GetVoxelPoint (point);
+		} else {
+			return 0;
+		}
 	}
 
-	int IsEditSpacePointSolid(int x, int y, int z)
+	bool IsEditSpacePointSolid(int x, int y, int z)
 	{
-		return _editSpace [x + EDITOR_SPACE_HALF_WIDTH, y + EDITOR_SPACE_HALF_WIDTH, z + EDITOR_SPACE_HALF_WIDTH] > 0 ? 1 : 0;
+		return GetEditSpacePoint (x, y, z) > 0;
 	}
 
 	public bool _selected = false;
@@ -270,51 +278,7 @@ public class PolyObjectController : MonoBehaviour {
 		int materialIndex = GetEditSpacePoint(x + diffPos.x, y + diffPos.y, z + diffPos.z);
 		return materialIndex;
 	}
-	
-	void MarchPerCube(int x, int y, int z)
-	{
-		int caseValue = 0;
-		
-		caseValue = caseValue * 2 + IsEditSpacePointSolid (x + 1, y, z + 1);//  _voxels[x+1,y+1,h];//v7
-		caseValue = caseValue * 2 + IsEditSpacePointSolid (x + 1, y + 1, z + 1); // _voxels[x+1,y+1,h+1];//v6
-		caseValue = caseValue * 2 + IsEditSpacePointSolid (x, y + 1, z + 1); //_voxels[x,y+1,h+1];//v5
-		caseValue = caseValue * 2 + IsEditSpacePointSolid (x, y, z + 1);// _voxels[x,y+1,h];//v4
-		caseValue = caseValue * 2 + IsEditSpacePointSolid (x + 1, y, z);//_voxels[x+1,y,h];//v3
-		caseValue = caseValue * 2 + IsEditSpacePointSolid (x + 1, y + 1, z);//_voxels[x+1,y,h+1];//v2
-		caseValue = caseValue * 2 + IsEditSpacePointSolid (x, y + 1, z);//_voxels[x,y,h+1];//v1
-		caseValue = caseValue * 2 + IsEditSpacePointSolid (x, y, z);//_voxels[x,y,h];//v0
-		
-		int[,] caseTriangles = _marchingCubes.getCaseTriangles (caseValue);
-		for (int i = 0; i < caseTriangles.GetLength(0); i++) {
-			int edgeA = caseTriangles[i,0];
-			int edgeB = caseTriangles[i,1];
-			int edgeC = caseTriangles[i,2];
-			
-			if (!use_lerp_color) {
-				// color mode, connected triangle in one voxel space will has same color, the color is to the nearest voxel point.
-				int nearestVoxelPointInde =  _nearestVoxelPointTable[caseValue,i];
-				int materialIndex = GetVoxelPointMaterial(nearestVoxelPointInde, x, y, z);
-				
-				AddTriangle(Edge2Position(edgeA, x, y, z), 
-				            Edge2Position(edgeB, x, y, z), 
-				            Edge2Position(edgeC, x, y, z), 
-				            materialIndex, 
-				            materialIndex, 
-				            materialIndex);
-				
-			} else {
-				// color mode, every single edge point will find its own color, the color is to the nearest voxel point.
-				AddTriangle(Edge2Position(edgeA, x, y, z),
-				            Edge2Position(edgeB, x, y, z), 
-				            Edge2Position(edgeC, x, y, z),
-				            GetVoxelPointMaterial(_nearestVoxelPointForEdgePointTable[caseValue, edgeA], x, y, z),
-				            GetVoxelPointMaterial(_nearestVoxelPointForEdgePointTable[caseValue, edgeB], x, y, z),
-				            GetVoxelPointMaterial(_nearestVoxelPointForEdgePointTable[caseValue, edgeC], x, y, z));
-				
-			}
-			
-		}
-	}
+
 	
 	IntVector3 VoxelPointPosition(int voxelPointIndex) {
 		int x, y, z;
@@ -602,15 +566,17 @@ public class PolyObjectController : MonoBehaviour {
 	
 	void AddBrush(Vector3 srcPoint, Vector3 normal, float extand)
 	{
-		if (extand > 1)
+		if (extand > 0.3f) {
+			Debug.Log("extand");
 			return;
+		}
 		
 		// test, only the cloest point
 		Vector3 point = srcPoint + normal * extand;
 		int x = Mathf.RoundToInt (point.x);
 		int y = Mathf.RoundToInt (point.y);
 		int z = Mathf.RoundToInt (point.z);
-		if (IsEditSpacePointSolid (x, y, z) == 1) {
+		if (IsEditSpacePointSolid (x, y, z)) {
 			AddBrush(srcPoint, normal, extand+0.1f);
 		} else {
 			SetEditSpacePoint (x, y, z, _materialsController.GetBrushMaterial());
@@ -628,9 +594,10 @@ public class PolyObjectController : MonoBehaviour {
 		int x = Mathf.RoundToInt (point.x);
 		int y = Mathf.RoundToInt (point.y);
 		int z = Mathf.RoundToInt (point.z);
-		if (IsEditSpacePointSolid (x, y, z) == 0) {
+		if (IsEditSpacePointSolid (x, y, z)) {
 			SubBrush(srcPoint, normal, extand-0.1f);
 		} else {
+			Debug.Log("s");
 			SetEditSpacePoint (x, y, z, 0);
 			RefreshMesh ();
 		}
@@ -836,6 +803,12 @@ public class PolyObjectController : MonoBehaviour {
 		_selected = isSelected;
 		_flagShowOutline = isSelected;
 		RefreshMaterialSetting ();
+
+		if (_segments != null) {
+			foreach (var go in _segments.Values) {
+				go.layer = isSelected ? LayerMask.NameToLayer ("PolyObjectSelected") : 0;
+			}
+		}
 	}
 
 	public void SetTranslation(bool isTranslation)
