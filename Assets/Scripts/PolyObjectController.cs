@@ -236,8 +236,10 @@ public class PolyObjectController : MonoBehaviour {
 	
 	public void RefreshMesh()
 	{
-		foreach (var go in _segments.Values) {
-			go.GetComponent<PolyObjectSegment>().RefreshMesh();
+		List<IntVector3> keys = new List<IntVector3> (_segments.Keys);
+
+		foreach (var k in keys) {
+			_segments[k].GetComponent<PolyObjectSegment>().RefreshMesh();
 		}
 	}
 	
