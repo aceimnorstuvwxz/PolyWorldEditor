@@ -813,13 +813,21 @@ public class PolyObjectController : MonoBehaviour {
 	private bool _flagTranslation = false;
 	void RefreshMaterialSetting()
 	{
-		var render = GetComponent<MeshRenderer> ();
+		if (_segments != null) {
+			foreach (var go in _segments.Values) {
+				RefreshMaterialSettingAst (go);
+			}
+		}
+	}
+	void RefreshMaterialSettingAst(GameObject seg)
+	{
+		var render = seg.GetComponent<MeshRenderer> ();
 		if (_flagTranslation) {
-			GetComponent<MeshRenderer> ().materials = new Material[]{mat_translation};
+			seg.GetComponent<MeshRenderer> ().materials = new Material[]{mat_translation};
 		} else if (_flagShowOutline) {
-			GetComponent<MeshRenderer> ().materials = new Material[]{mat_normal, mat_out_line};
+			seg.GetComponent<MeshRenderer> ().materials = new Material[]{mat_normal, mat_out_line};
 		} else {
-			GetComponent<MeshRenderer> ().materials = new Material[]{mat_normal};
+			seg.GetComponent<MeshRenderer> ().materials = new Material[]{mat_normal};
 		}
 	}
 
