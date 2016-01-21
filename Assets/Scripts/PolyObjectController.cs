@@ -52,7 +52,17 @@ public class PolyObjectController : MonoBehaviour {
 		                       MyModulo (y, PolyObjectSegment.poly_object_segment_width),
 		                       MyModulo (z, PolyObjectSegment.poly_object_segment_width));
 	}
-	
+
+	void ProcNewSegment(IntVector3 index)
+	{
+		GameObject segment = Instantiate(poly_object_segment_fab) as GameObject;
+		_segments[index] = segment;
+		segment.transform.SetParent(transform);
+		var seg = segment.GetComponent<PolyObjectSegment>();
+		seg._segmentIndex = index;
+		seg.Init();
+	}
+
 	void SetEditSpacePoint(int x, int y, int z, int value)
 	{
 //		_editSpace [x + EDITOR_SPACE_HALF_WIDTH, y + EDITOR_SPACE_HALF_WIDTH, z + EDITOR_SPACE_HALF_WIDTH] = value;
@@ -60,19 +70,91 @@ public class PolyObjectController : MonoBehaviour {
 		IntVector3 voxelPoint = WorldPosition2SegmentPosition (x, y, z);
 
 		if (value > 0 && !_segments.ContainsKey (segmentIndex)) {
-			GameObject segment = Instantiate(poly_object_segment_fab) as GameObject;
-			_segments[segmentIndex] = segment;
-			segment.transform.SetParent(transform);
-			var seg = segment.GetComponent<PolyObjectSegment>();
-			seg._segmentIndex = segmentIndex;
-			seg.Init();
-
+			ProcNewSegment(segmentIndex);
 		}
 
 		if ((value == 0 && _segments.ContainsKey (segmentIndex)) ||
 		    (value > 0)) {
 			var seg = _segments[segmentIndex].GetComponent<PolyObjectSegment>();
 			seg.SetVoxelPoint(voxelPoint, value);
+		}
+
+
+		// aditive points
+
+		bool ix = x % PolyObjectSegment.poly_object_segment_width == 0;
+		bool iy = y % PolyObjectSegment.poly_object_segment_width == 0;
+		bool iz = z % PolyObjectSegment.poly_object_segment_width == 0;
+
+		// single 
+		if (ix) {
+			IntVector3 index = new IntVector3(segmentIndex.x - 1, segmentIndex.y, segmentIndex.z);
+			IntVector3 point = new IntVector3(PolyObjectSegment.poly_object_segment_width,
+			                                  voxelPoint.y,
+			                                  voxelPoint.z);
+			SetEditSpacePointAditive(index, point, value);
+		}
+		if (iy) {
+			IntVector3 index = new IntVector3(segmentIndex.x, segmentIndex.y - 1, segmentIndex.z);
+			IntVector3 point = new IntVector3(voxelPoint.x,
+			                                  PolyObjectSegment.poly_object_segment_width,
+			                                  voxelPoint.z);
+			SetEditSpacePointAditive(index, point, value);
+		}
+		if (iz) {
+			IntVector3 index = new IntVector3(segmentIndex.x, segmentIndex.y, segmentIndex.z - 1);
+			IntVector3 point = new IntVector3(voxelPoint.x,
+			                                  voxelPoint.y,
+			                                  PolyObjectSegment.poly_object_segment_width);
+			SetEditSpacePointAditive(index, point, value);
+		}
+
+		//double
+
+		if (ix && iy) {
+			IntVector3 index = new IntVector3(segmentIndex.x - 1, segmentIndex.y - 1, segmentIndex.z);
+			IntVector3 point = new IntVector3(PolyObjectSegment.poly_object_segment_width,
+			                                  PolyObjectSegment.poly_object_segment_width,
+			                                  voxelPoint.z);
+			SetEditSpacePointAditive(index, point, value);
+		}
+
+		if (iy && iz) {
+			IntVector3 index = new IntVector3(segmentIndex.x, segmentIndex.y - 1, segmentIndex.z - 1);
+			IntVector3 point = new IntVector3(voxelPoint.x, 
+			                                  PolyObjectSegment.poly_object_segment_width,
+			                                  PolyObjectSegment.poly_object_segment_width);
+			SetEditSpacePointAditive(index, point, value);
+		}
+
+		if (ix && iz) {
+			IntVector3 index = new IntVector3(segmentIndex.x - 1, segmentIndex.y, segmentIndex.z - 1);
+			IntVector3 point = new IntVector3(PolyObjectSegment.poly_object_segment_width,
+			                                  voxelPoint.y,
+			                                  PolyObjectSegment.poly_object_segment_width);
+			SetEditSpacePointAditive(index, point, value);
+		}
+
+		//trible
+		if (ix && iy && iz) {
+			
+			IntVector3 index = new IntVector3(segmentIndex.x - 1, segmentIndex.y - 1, segmentIndex.z - 1);
+			IntVector3 point = new IntVector3(PolyObjectSegment.poly_object_segment_width, 
+			                                  PolyObjectSegment.poly_object_segment_width,
+			                                  PolyObjectSegment.poly_object_segment_width);
+			SetEditSpacePointAditive(index, point, value);
+		}
+	}
+
+	void SetEditSpacePointAditive(IntVector3 index, IntVector3 point, int value) 
+	{
+		if (value > 0 && !_segments.ContainsKey (index)) {
+			ProcNewSegment(index);
+		}
+
+		if (_segments.ContainsKey (index)) {
+			var seg = _segments[index].GetComponent<PolyObjectSegment>();
+			seg.SetAdditiveVoxelPoint(point, value);
 		}
 	}
 	
