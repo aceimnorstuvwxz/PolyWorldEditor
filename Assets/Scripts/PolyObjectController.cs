@@ -60,6 +60,7 @@ public class PolyObjectController : MonoBehaviour {
 		segment.transform.SetParent(transform);
 		var seg = segment.GetComponent<PolyObjectSegment>();
 		seg._segmentIndex = index;
+		seg._parentController = this;
 		seg.Init();
 	}
 
@@ -154,8 +155,15 @@ public class PolyObjectController : MonoBehaviour {
 
 		if (_segments.ContainsKey (index)) {
 			var seg = _segments[index].GetComponent<PolyObjectSegment>();
-			seg.SetAdditiveVoxelPoint(point, value);
+			seg.SetVoxelPoint(point, value);
 		}
+	}
+
+	public void DeleteSegment(IntVector3 index)
+	{
+		var go = _segments [index];
+		_segments.Remove (index);
+		Destroy (go);
 	}
 	
 	int GetEditSpacePoint(int x, int y, int z)
@@ -445,7 +453,6 @@ public class PolyObjectController : MonoBehaviour {
 
 	public void AddPreset(PolyWorldController.PresetType t, int value, float fillrate)
 	{
-		Debug.Log ("aa");
 		switch (t) {
 			
 		case PolyWorldController.PresetType.Cube:
