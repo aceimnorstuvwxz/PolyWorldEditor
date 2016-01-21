@@ -63,6 +63,7 @@ public class PolyObjectController : MonoBehaviour {
 		seg._parentController = this;
 		seg.Init();
 		segment.layer = _selected ? LayerMask.NameToLayer ("PolyObjectSelected") : 0;
+		RefreshMaterialSetting ();
 	}
 
 	void SetEditSpacePoint(int x, int y, int z, int value)
