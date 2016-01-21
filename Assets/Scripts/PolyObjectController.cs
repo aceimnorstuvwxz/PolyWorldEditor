@@ -235,41 +235,9 @@ public class PolyObjectController : MonoBehaviour {
 	
 	public void RefreshMesh()
 	{
-		/*
-		_vertices = new List<Vector3> ();
-		_triangles = new List<int> ();
-		_colors = new List<Color> ();
-		
-		
-		//marching cubes
-		for (int x = -EDITOR_SPACE_HALF_WIDTH; x <= EDITOR_SPACE_HALF_WIDTH-1; x++) {
-			for (int y = -EDITOR_SPACE_HALF_WIDTH; y <= EDITOR_SPACE_HALF_WIDTH-1; y++) {
-				for (int z = -EDITOR_SPACE_HALF_WIDTH; z <= EDITOR_SPACE_HALF_WIDTH-1; z++) {
-					MarchPerCube(x,y,z);
-				}
-			}
-		}*/
-
 		foreach (var go in _segments.Values) {
 			go.GetComponent<PolyObjectSegment>().RefreshMesh();
 		}
-
-
-		var ret = _marchingCubesEngine.Marching (_editSpace, new IntVector3 (-EDITOR_SPACE_HALF_WIDTH,-EDITOR_SPACE_HALF_WIDTH,-EDITOR_SPACE_HALF_WIDTH));
-		
-		Mesh mesh = new Mesh();
-		var meshFilter = GetComponent<MeshFilter> ();
-		meshFilter.mesh = mesh;
-		mesh.vertices = ret.vertices.ToArray ();//_vertices.ToArray();
-		mesh.triangles = ret.triangles.ToArray ();// _triangles.ToArray();
-		//		mesh.uv = _uvs.ToArray();
-		mesh.RecalculateNormals();
-		mesh.colors = ret.colors.ToArray ();//_colors.ToArray ();
-		
-//		Debug.Log ("TerrainFab vertices = " + _vertices.Count.ToString());
-		
-		var meshColider = GetComponent<MeshCollider> ();
-		meshColider.sharedMesh = mesh;
 	}
 	
 	int GetVoxelPointMaterial(int voxelRelativeIndex, int x, int y, int z)
@@ -570,8 +538,7 @@ public class PolyObjectController : MonoBehaviour {
 			Debug.Log("extand");
 			return;
 		}
-		
-		// test, only the cloest point
+
 		Vector3 point = srcPoint + normal * extand;
 		int x = Mathf.RoundToInt (point.x);
 		int y = Mathf.RoundToInt (point.y);
@@ -586,18 +553,17 @@ public class PolyObjectController : MonoBehaviour {
 	
 	void SubBrush(Vector3 srcPoint, Vector3 normal, float extand)
 	{
-		if (extand < -1)
+		if (extand < -0.3f) {
 			return;
-		
-		// test, only the cloest point
+		}
+
 		Vector3 point = srcPoint + normal * extand;
 		int x = Mathf.RoundToInt (point.x);
 		int y = Mathf.RoundToInt (point.y);
 		int z = Mathf.RoundToInt (point.z);
-		if (IsEditSpacePointSolid (x, y, z)) {
+		if (!IsEditSpacePointSolid (x, y, z)) {
 			SubBrush(srcPoint, normal, extand-0.1f);
 		} else {
-			Debug.Log("s");
 			SetEditSpacePoint (x, y, z, 0);
 			RefreshMesh ();
 		}

@@ -76,7 +76,6 @@ public class PolyObjectSegment : MonoBehaviour {
 		if (_count == 0) {
 			_parentController.DeleteSegment(_segmentIndex);
 		} else {
-			Debug.Log ("seg refresh mesh");
 			var ret = _marchingCubesEngine.Marching (_editSpace, _segmentIndex.multi (poly_object_segment_width));
 		
 			Mesh mesh = new Mesh ();
