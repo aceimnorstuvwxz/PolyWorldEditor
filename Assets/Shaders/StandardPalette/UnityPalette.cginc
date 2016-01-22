@@ -123,8 +123,10 @@ VertexOutputForwardBase_VC vertForwardBase_VC (VertexInput_VC v)
 half4 fragForwardBase_VC (VertexOutputForwardBase_VC i) : SV_Target
 {
 	FRAGMENT_SETUP(s)
+	s.diffColor = fixed4(1,1,1,1);
 	UnityLight mainLight = MainLight (s.normalWorld);
 	half atten = SHADOW_ATTENUATION(i);
+	
 
 	half occlusion = Occlusion(i.tex.xy);
 	UnityGI gi = FragmentGI (
