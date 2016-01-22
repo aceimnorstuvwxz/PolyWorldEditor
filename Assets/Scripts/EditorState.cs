@@ -14,6 +14,8 @@ public class EditorState : MonoBehaviour {
 	public GameObject text_preset_fillrate;
 	public GameObject drop_preset_types;
 
+	public GameObject light_object;
+
 	private Text _textEmit;
 
 	private PolyWorldController _polyWorldController;
@@ -69,5 +71,15 @@ public class EditorState : MonoBehaviour {
 	public void OnClickBtnClear()
 	{
 		_polyWorldController.ClearA();
+	}
+
+	public void OnBackgroundChange(float value)
+	{
+		Camera.main.backgroundColor = new Color (value, value, value, 1);
+	}
+
+	public void OnLightChange(float value)
+	{
+		light_object.GetComponent<Light>().color = new Color (value, value, value, 1);
 	}
 }
