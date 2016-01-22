@@ -25,7 +25,7 @@ public class PolyObjectSegment : MonoBehaviour {
 		_count = 0;
 	}
 
-	void Start () 
+	void Start ()
 	{
 	}
 	
@@ -86,9 +86,11 @@ public class PolyObjectSegment : MonoBehaviour {
 			//		mesh.uv = _uvs.ToArray();
 			mesh.RecalculateNormals ();
 			mesh.colors = ret.colors.ToArray ();
+			mesh.uv = ret.uvs.ToArray();
 		
 			var meshColider = GetComponent<MeshCollider> ();
 			meshColider.sharedMesh = mesh;
 		}
+
 	}
 }

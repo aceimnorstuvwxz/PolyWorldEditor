@@ -757,6 +757,17 @@ public class PolyObjectController : MonoBehaviour {
 	}
 	void RefreshMaterialSettingAst(GameObject seg)
 	{
+		Texture2D texture = new Texture2D(128, 128);
+		mat_normal.mainTexture = texture;
+		
+		for (int y = 0; y < texture.height; y++) {
+			for (int x = 0; x < texture.width; x++) {
+//				Color color = ((x & y) != 0 ? Color.white : Color.gray);
+				texture.SetPixel(x, y, x < 64 ? Color.cyan : Color.yellow);
+			}
+		}
+		texture.Apply();
+
 		var render = seg.GetComponent<MeshRenderer> ();
 		if (_flagTranslation) {
 			seg.GetComponent<MeshRenderer> ().materials = new Material[]{mat_translation};

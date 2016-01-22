@@ -10,7 +10,7 @@ public class MarchingCubesEngine: MonoBehaviour
 
 	// tmp data
 	private List<Vector3> _vertices; //vertices
-	//	private List<Vector2> _uvs;
+		private List<Vector2> _uvs;
 	private List<int> _triangles; //index
 	private List<Color> _colors;
 	private IntVector3 _origin;
@@ -30,7 +30,7 @@ public class MarchingCubesEngine: MonoBehaviour
 	public class Result
 	{
 		public List<Vector3> vertices; //vertices
-		//	List<Vector2> _uvs;
+		public List<Vector2> uvs;
 		public List<int> triangles; //index
 		public List<Color> colors; // TODO tiaoseban
 	};
@@ -42,6 +42,8 @@ public class MarchingCubesEngine: MonoBehaviour
 		_vertices = new List<Vector3> ();
 		_triangles = new List<int> ();
 		_colors = new List<Color> ();
+		_uvs = new List<Vector2> ();
+
 		_origin = origin;
 		_editSpace = space;
 
@@ -57,10 +59,12 @@ public class MarchingCubesEngine: MonoBehaviour
 		res.vertices = _vertices;
 		res.triangles = _triangles;
 		res.colors = _colors;
+		res.uvs = _uvs;
 
 		_vertices = null;
 		_triangles = null;
 		_colors = null;
+		_uvs = null;
 		_editSpace = null;
 
 		return res;
@@ -85,7 +89,7 @@ public class MarchingCubesEngine: MonoBehaviour
 
 	void AddVertex(Vector3 node, Color co) {
 		_vertices.Add (node + _origin.ToFloat());
-		//		_uvs.Add (node.toUV (_voxels.GetLength(0), _voxels.GetLength(2)));
+		_uvs.Add (new Vector2(Random.value, Random.value));
 		_colors.Add (co);
 	}
 	
