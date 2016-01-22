@@ -58,6 +58,9 @@ public class PolyObjectController : MonoBehaviour {
 		GameObject segment = Instantiate(poly_object_segment_fab) as GameObject;
 		_segments[index] = segment;
 		segment.transform.SetParent(transform);
+		segment.transform.localPosition = Vector3.zero;
+		segment.transform.localRotation = Quaternion.identity;
+		segment.transform.localScale = Vector3.one;
 		var seg = segment.GetComponent<PolyObjectSegment>();
 		seg._segmentIndex = index;
 		seg._parentController = this;
