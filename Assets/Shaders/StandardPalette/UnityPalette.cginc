@@ -111,7 +111,10 @@ VertexOutputForwardBase_VC vertForwardBase_VC (VertexInput_VC v)
 		o.tangentToWorldAndParallax[2].w = viewDirForParallax.z;
 	#endif
 	#ifdef _VERTEXCOLOR
+	       // [!!!!] change from VertexColor shader
+	       // using main tex as color palette
 	       o.color = tex2D (_MainTex, v.uv0.xy);//v.color * _IntensityVC; //fixed4(0,0,1,1);
+	       
  	#endif
 	UNITY_TRANSFER_FOG(o,o.pos);
 	return o;

@@ -1,4 +1,4 @@
-Shader "Standard (Palette)" {
+Shader "Standard (Vertex Color Palette)" {
 	
     	Properties
 	{
