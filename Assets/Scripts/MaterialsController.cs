@@ -5,6 +5,8 @@ using System.Collections.Generic;
 public class MaterialsController : MonoBehaviour {
 
 	private int _materialIndex = 1; //start from 1
+	public const int palette_unit = 4;
+	public const int palette_width = 16;
 
 	public GameObject material_fab;
 	private GameObject _content;
@@ -17,6 +19,8 @@ public class MaterialsController : MonoBehaviour {
 	private ColorPicker _colorPicker;
 	private PolyWorldController _polyWorldController;
 
+	private Texture2D _textureColorPalette;
+
 	// Use this for initialization
 	void Start ()
 	{
@@ -26,7 +30,25 @@ public class MaterialsController : MonoBehaviour {
 		_materialColors = new Dictionary<int, Color> ();
 		_colorPicker = GameObject.Find ("ColorPicker").GetComponent<ColorPicker> ();
 		_polyWorldController = GameObject.Find ("PolyWorldSpace").GetComponent<PolyWorldController> ();
+
+
+		_textureColorPalette = new Texture2D(palette_unit * palette_width,
+		                                     palette_unit * palette_width);
+		
+		for (int y = 0; y < _textureColorPalette.height; y++) {
+			for (int x = 0; x < _textureColorPalette.width; x++) {
+				_textureColorPalette.SetPixel(x, y, Color.magenta);
+			}
+		}
+		_textureColorPalette.Apply();
+
+
 		Invoke("OnNewMaterial", 0.5f);
+	}
+
+	public Texture2D GetPaletteTexture()
+	{
+		return _textureColorPalette;
 	}
 	
 	// Update is called once per frame
@@ -48,7 +70,8 @@ public class MaterialsController : MonoBehaviour {
 		//		rect.localPosition = new Vector3 (0, -_lineHeight * _layerDict.Count, 0);
 		
 		_materialsDict.Add (materialId, material);
-		_materialColors.Add (materialId, new Color(Random.value, Random.value, Random.value, 1f));
+		var col = new Color (Random.value, Random.value, Random.value, 1f);
+		_materialColors.Add (materialId, col);
 		var materialController = material.GetComponent<MaterialLineController> ();
 		materialController.material_id = materialId;
 		materialController.SetColor (_materialColors [materialId]);
@@ -57,6 +80,22 @@ public class MaterialsController : MonoBehaviour {
 		
 		SelectMaterial (materialId);
 
+		SetPaleeteColor (materialId, col);
+
+	}
+
+	void SetPaleeteColor(int id, Color cc)
+	{
+		int sy = id / palette_width;
+		int sx = id % palette_width;
+
+		for (int iy = sy * palette_unit; iy < sy* palette_unit + palette_unit; iy++) {
+			for (int ix = sx * palette_unit; ix < sx * palette_unit + palette_unit; ix++) {
+				_textureColorPalette.SetPixel(ix, iy, cc);
+			}
+		}
+
+		_textureColorPalette.Apply ();
 	}
 
 
@@ -132,13 +171,12 @@ public class MaterialsController : MonoBehaviour {
 		foreach (int id in _selectedMaterials) {
 			_materialColors[id] = color;
 			_materialsDict[id].GetComponent<MaterialLineController>().SetColor (color);
-
+			SetPaleeteColor(id, color);
 		}
 		
 		_polyWorldController.RefreshMaterial (_selectedMaterials);
-		
 	}
-	
+
 	public Color OnGetColor()
 	{
 		Debug.Log ("OnGetColor, ");
@@ -161,4 +199,14 @@ public class MaterialsController : MonoBehaviour {
 	{
 		return _materialColors [id];
 	}
+
+	public Vector2 GetMaterialPaletteUV(int id)
+	{
+		float step = 1f / palette_width;
+		float y = (id / palette_width + 0.5f) * step;
+		float x = (id % palette_width + 0.5f) * step;
+
+		return new Vector2(x, y);
+	}
+
 }

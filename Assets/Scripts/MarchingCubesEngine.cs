@@ -87,10 +87,10 @@ public class MarchingCubesEngine: MonoBehaviour
 		return materialIndex;
 	}
 
-	void AddVertex(Vector3 node, Color co) {
+	void AddVertex(Vector3 node, Vector2 uv) {
 		_vertices.Add (node + _origin.ToFloat());
-		_uvs.Add (new Vector2(Random.value, Random.value));
-		_colors.Add (co);
+		_uvs.Add (uv);
+		_colors.Add (Color.green);
 	}
 	
 	Color GetMatColor(int mat)
@@ -107,14 +107,13 @@ public class MarchingCubesEngine: MonoBehaviour
 		}
 		
 		_triangles.Add (_vertices.Count);
-		AddVertex(a,GetMatColor(matA));
+		AddVertex (a, _materialsController.GetMaterialPaletteUV(matA));
 		
 		_triangles.Add (_vertices.Count);
-		AddVertex (b, GetMatColor (matB));
+		AddVertex (b, _materialsController.GetMaterialPaletteUV (matB));
 		
 		_triangles.Add (_vertices.Count);
-		AddVertex(c, GetMatColor(matC));
-		
+		AddVertex (c, _materialsController.GetMaterialPaletteUV (matC));
 	}
 
 	void MarchPerCube(int x, int y, int z)
