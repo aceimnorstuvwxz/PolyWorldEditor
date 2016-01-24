@@ -20,6 +20,11 @@ public class IntVector3
 		return new Vector3 (x * 1f, y * 1f, z * 1f);
 	}
 
+	public static IntVector3 FromFloat(Vector3 point)
+	{
+		return new IntVector3 (Mathf.RoundToInt (point.x), Mathf.RoundToInt (point.y), Mathf.RoundToInt (point.z));
+	}
+
 	public IntVector3 multi(int p)
 	{
 		return new IntVector3(x * p, y * p, z * p);

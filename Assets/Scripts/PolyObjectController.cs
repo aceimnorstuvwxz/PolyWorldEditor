@@ -71,7 +71,7 @@ public class PolyObjectController : MonoBehaviour {
 		RefreshMaterialSetting ();
 	}
 
-	void SetEditSpacePoint(int x, int y, int z, int value)
+	public void SetEditSpacePoint(int x, int y, int z, int value)
 	{
 //		_editSpace [x + EDITOR_SPACE_HALF_WIDTH, y + EDITOR_SPACE_HALF_WIDTH, z + EDITOR_SPACE_HALF_WIDTH] = value;
 		IntVector3 segmentIndex = WorldPosition2SegmentIndex (x, y, z);
