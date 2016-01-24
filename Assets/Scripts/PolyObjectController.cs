@@ -20,6 +20,8 @@ public class PolyObjectController : MonoBehaviour {
 	
 	private EditorState _editorState;
 
+	private BrushController _brushController;
+
 	int MyDivision(int a, int b)
 	{
 		int s = a / b;
@@ -200,6 +202,8 @@ public class PolyObjectController : MonoBehaviour {
 	private MarchingCubesEngine _marchingCubesEngine;
 	void Start () 
 	{
+
+		_brushController = GameObject.Find ("Brush").GetComponent<BrushController> ();
 		_segments = new Dictionary<IntVector3, GameObject> (new IntVector3.EqualityComparer ());
 		_marchingCubesEngine = GameObject.Find ("MarchingCubesEngine").GetComponent<MarchingCubesEngine> ();
 		Debug.Assert (_marchingCubesEngine != null);
@@ -220,13 +224,18 @@ public class PolyObjectController : MonoBehaviour {
 
 		_meshRenderer = GetComponent<MeshRenderer> ();
 	}
-	
+
+	public bool IsEditable()
+	{
+		return (_selected && !_runtimeTranslation.IsActive () && !_colorPicker.IsActive () && _meshRenderer.enabled)
+			;
+	}
 	
 	void Update () 
 	{
 		if (_selected && !_runtimeTranslation.IsActive() && !_colorPicker.IsActive() && _meshRenderer.enabled) {
-			EmissionCalc ();
-			MouseBrush ();
+//			EmissionCalc ();
+//			MouseBrush ();
 		}
 	}
 	
@@ -783,6 +792,10 @@ public class PolyObjectController : MonoBehaviour {
 			foreach (var go in _segments.Values) {
 				go.layer = isSelected ? LayerMask.NameToLayer ("PolyObjectSelected") : 0;
 			}
+		}
+
+		if (isSelected && _brushController != null) {
+			_brushController.SetTargetPolyObject(gameObject);
 		}
 	}
 
