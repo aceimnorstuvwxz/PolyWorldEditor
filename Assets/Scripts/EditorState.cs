@@ -19,6 +19,7 @@ public class EditorState : MonoBehaviour {
 	private Text _textEmit;
 
 	private PolyWorldController _polyWorldController;
+	private BrushController _brushController;
 
 	private int _presetValue = 1;
 	private float _presetFillrate = 1f;
@@ -29,6 +30,7 @@ public class EditorState : MonoBehaviour {
 		_textEmit.text = emission_per_second.ToString ();
 
 		_polyWorldController = GameObject.Find ("PolyWorldSpace").GetComponent<PolyWorldController> ();
+		_brushController = GameObject.Find ("Brush").GetComponent<BrushController> ();
 	}
 
 
@@ -81,5 +83,31 @@ public class EditorState : MonoBehaviour {
 	public void OnLightChange(float value)
 	{
 		light_object.GetComponent<Light>().color = new Color (value, value, value, 1);
+	}
+
+	public void OnSelectBrushShape(int value)
+	{
+		_brushController.SetBrushShape (value == 0 ? BrushController.BrushShape.Cylinder :
+		                               value == 1 ? BrushController.BrushShape.Sphere :
+		                               BrushController.BrushShape.Cube);
+	}
+
+	private float _brushWidth = 1f;
+	private float _brushHeight = 1f;
+	public GameObject text_brush_width;
+	public GameObject text_brush_height;
+
+	public void OnBrushWidthChange(float value)
+	{
+		_brushWidth = value;
+		_brushController.SetBrushSize (_brushWidth, _brushHeight);
+		text_brush_width.GetComponent<Text> ().text = ((int)(value)).ToString ();
+	}
+
+	public void OnBrushHeightChange(float value)
+	{
+		_brushHeight = value;
+		_brushController.SetBrushSize (_brushWidth, _brushHeight);
+		text_brush_height.GetComponent<Text> ().text = ((int)(value)).ToString ();
 	}
 }

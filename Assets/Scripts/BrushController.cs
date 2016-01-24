@@ -112,18 +112,24 @@ public class BrushController : MonoBehaviour {
 		HelpSetColidderPosition (localPoint, localNormal);
 
 		IntVector3 centerVoxel = IntVector3.FromFloat (localPoint);
-		int len = (int)Mathf.Ceil (Mathf.Sqrt (_brushWidth * _brushWidth + _brushHeight * _brushHeight));
-		Vector3 outsidePoint = transform.InverseTransformPoint(Camera.main.transform.position);
-		Collider cld = _brushShape == BrushShape.Cube ? cld_cube :
-			_brushShape == BrushShape.Cylinder ? cld_cylinder : cld_sphere;
-		if (Input.GetMouseButtonDown (0)) {
+		int len = (int)Mathf.Ceil (Mathf.Sqrt (_brushWidth * _brushWidth + _brushHeight * _brushHeight) * 0.5f);
+//		Debug.Log ("len" + len.ToString () + centerVoxel.ToString());
+		Collider cld = cld_cylinder;//_brushShape == BrushShape.Cube ? cld_cube :
+			//_brushShape == BrushShape.Cylinder ? cld_cylinder : cld_sphere;
+		var outside = Camera.main.transform.position; //new Vector3 (300, 300, 300);
+		if ( true) {
 			for (int x = -len; x <= len; x++) {
 				for (int y = -len; y <= len; y++) {
 					for (int z = -len; z <= len; z++) {
-						Vector3 underTestPoint = centerVoxel.ToFloat () + new Vector3 (x, y, z);
-						if (Doge.IsColliderContainPoint (outsidePoint, underTestPoint, cld)) {
+						Vector3 underTestPoint = transform.TransformPoint(centerVoxel.ToFloat () + new Vector3 (x, y, z));
+
+						if (Doge.IsColliderContainPoint (outside,
+						                                 underTestPoint, 
+						                                 cld)) {
 							//
-							_targetPolyObject.SetEditSpacePoint (centerVoxel.x + x, centerVoxel.y + y, centerVoxel.z + z, 1);
+							if (Input.GetMouseButtonDown (0) ) 
+								_targetPolyObject.SetEditSpacePoint (centerVoxel.x + x, centerVoxel.y + y, centerVoxel.z + z, 1);
+//							Debug.DrawRay (underTestPoint, (outside-underTestPoint).normalized*100f);
 						}
 					}
 				}
