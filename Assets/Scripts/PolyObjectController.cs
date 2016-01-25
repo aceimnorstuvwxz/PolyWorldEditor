@@ -71,6 +71,16 @@ public class PolyObjectController : MonoBehaviour {
 		RefreshMaterialSetting ();
 	}
 
+	public void AddEditSpacePoint(int x, int y, int z)
+	{
+		SetEditSpacePoint (x, y, z, _materialsController.GetBrushMaterial ());
+	}
+
+	public void DeleteEditSpacePoint(int x, int y, int z)
+	{
+		SetEditSpacePoint (x, y, z, 0);
+	}
+
 	public void SetEditSpacePoint(int x, int y, int z, int value)
 	{
 //		_editSpace [x + EDITOR_SPACE_HALF_WIDTH, y + EDITOR_SPACE_HALF_WIDTH, z + EDITOR_SPACE_HALF_WIDTH] = value;

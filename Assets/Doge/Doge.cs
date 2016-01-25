@@ -12,7 +12,15 @@ public class Doge {
 	//http://answers.unity3d.com/questions/163864/test-if-point-is-in-collider.html
 	public static bool IsColliderContainPoint(Vector3 outsidePoint, Vector3 underTestPoint, Collider collider)
 	{
+		{
+			// convex shape, this is ok!
+			RaycastHit hit;
+			return ColliderLineCast(collider, outsidePoint, underTestPoint, out hit) && 
+				!ColliderLineCast(collider, underTestPoint, outsidePoint, out hit);
+		}
 
+
+		/*
 		Vector3 Point;
 		Vector3 Start = outsidePoint; // This is defined to be some arbitrary point far away from the collider.
 		Vector3 Goal = underTestPoint; // This is the point we want to determine whether or not is inside or outside the collider.
@@ -38,6 +46,7 @@ public class Doge {
 			{
 				Point = Goal; // If there is no obstruction to our goal, then we can reach it in one step.
 			}
+			if (Itterations > 10) break;
 		}
 		while(Point != Start) // Try to return to where we came from, this will make sure we see all the back faces too.
 		{
@@ -52,9 +61,11 @@ public class Doge {
 			{
 				Point = Start;
 			}
+			if (Itterations > 10) break;
 		}
 
-		return (Itterations % 2) == 1;
+		return (Itterations % 2) == 1;*/
 	}
+
 
 }

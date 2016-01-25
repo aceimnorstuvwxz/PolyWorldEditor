@@ -18,6 +18,8 @@ public class BrushController : MonoBehaviour {
 	private BrushMode _brushMode = BrushMode.Normal;
 	private BrushShape _brushShape = BrushShape.Cylinder;
 
+	private EditorState _editorState;
+	
 	public void SetTargetPolyObject(GameObject obj)
 	{
 		transform.SetParent (obj.transform);
@@ -33,7 +35,10 @@ public class BrushController : MonoBehaviour {
 	public void SetBrushShape(BrushShape s)
 	{
 		_brushShape = s;
-		//TODO
+
+		goc_cylinder.SetActive (s == BrushShape.Cylinder);
+		goc_sphere.SetActive (s == BrushShape.Sphere);
+		goc_cube.SetActive (s == BrushShape.Cube);
 	}
 
 	private float _brushWidth = 1f;
@@ -48,15 +53,20 @@ public class BrushController : MonoBehaviour {
 
 		var newScale = new Vector3 (width, height, width);
 		goc_cylinder.transform.localScale = newScale;
-		goc_cylinder.transform.localScale = newScale;
-		goc_cylinder.transform.localScale = newScale;
+		goc_sphere.transform.localScale = newScale;
+		goc_cube.transform.localScale = newScale;
 	}
 
 	void Start () 
 	{
+		_editorState = GameObject.Find ("UICanvas").GetComponent<EditorState> ();
+
 		cld_cube = goc_cube.GetComponent<MeshCollider> ();
 		cld_cylinder = goc_cylinder.GetComponent<MeshCollider> ();
 		cld_sphere = goc_sphere.GetComponent<MeshCollider> ();
+
+
+		SetBrushShape (BrushShape.Cylinder);
 	}
 	
 	void Update () 
@@ -114,8 +124,8 @@ public class BrushController : MonoBehaviour {
 		IntVector3 centerVoxel = IntVector3.FromFloat (localPoint);
 		int len = (int)Mathf.Ceil (Mathf.Sqrt (_brushWidth * _brushWidth + _brushHeight * _brushHeight) * 0.5f);
 //		Debug.Log ("len" + len.ToString () + centerVoxel.ToString());
-		Collider cld = cld_cylinder;//_brushShape == BrushShape.Cube ? cld_cube :
-			//_brushShape == BrushShape.Cylinder ? cld_cylinder : cld_sphere;
+		Collider cld = _brushShape == BrushShape.Cube ? cld_cube :
+			_brushShape == BrushShape.Cylinder ? cld_cylinder : cld_sphere;
 		var outside = Camera.main.transform.position; //new Vector3 (300, 300, 300);
 		if ( true) {
 			for (int x = -len; x <= len; x++) {
@@ -123,13 +133,14 @@ public class BrushController : MonoBehaviour {
 					for (int z = -len; z <= len; z++) {
 						Vector3 underTestPoint = transform.TransformPoint(centerVoxel.ToFloat () + new Vector3 (x, y, z));
 
-						if (Doge.IsColliderContainPoint (outside,
-						                                 underTestPoint, 
-						                                 cld)) {
-							//
-							if (Input.GetMouseButtonDown (0) ) 
-								_targetPolyObject.SetEditSpacePoint (centerVoxel.x + x, centerVoxel.y + y, centerVoxel.z + z, 1);
-//							Debug.DrawRay (underTestPoint, (outside-underTestPoint).normalized*100f);
+						if (Doge.IsColliderContainPoint (outside, underTestPoint, cld)) {
+							if (Input.GetMouseButtonDown (0) ) {
+								if (_editorState.is_add){
+									_targetPolyObject.AddEditSpacePoint (centerVoxel.x + x, centerVoxel.y + y, centerVoxel.z + z);
+								} else {
+									_targetPolyObject.DeleteEditSpacePoint (centerVoxel.x + x, centerVoxel.y + y, centerVoxel.z + z);
+								}
+							}
 						}
 					}
 				}
