@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class BrushController : MonoBehaviour {
 
@@ -19,6 +20,9 @@ public class BrushController : MonoBehaviour {
 	private BrushShape _brushShape = BrushShape.Cylinder;
 
 	private EditorState _editorState;
+	private Dictionary<IntVector3, int> _brushVoxelPoolBefore;
+	private Dictionary<IntVector3, int> _brushVoxelPoolAfter;
+
 	
 	public void SetTargetPolyObject(GameObject obj)
 	{
@@ -32,6 +36,7 @@ public class BrushController : MonoBehaviour {
 		//TODO
 	}
 
+	private GameObject _currentShapeGo;
 	public void SetBrushShape(BrushShape s)
 	{
 		_brushShape = s;
@@ -39,6 +44,9 @@ public class BrushController : MonoBehaviour {
 		goc_cylinder.SetActive (s == BrushShape.Cylinder);
 		goc_sphere.SetActive (s == BrushShape.Sphere);
 		goc_cube.SetActive (s == BrushShape.Cube);
+
+		_currentShapeGo = s == BrushShape.Cube ? goc_cube :
+			s == BrushShape.Sphere ? goc_sphere : goc_cylinder;
 	}
 
 	private float _brushWidth = 1f;
@@ -59,6 +67,9 @@ public class BrushController : MonoBehaviour {
 
 	void Start () 
 	{
+		_brushVoxelPoolAfter = new Dictionary<IntVector3, int> (new IntVector3.EqualityComparer ());
+		_brushVoxelPoolBefore = new Dictionary<IntVector3, int> (new IntVector3.EqualityComparer ());
+
 		_editorState = GameObject.Find ("UICanvas").GetComponent<EditorState> ();
 
 		cld_cube = goc_cube.GetComponent<MeshCollider> ();
@@ -94,12 +105,16 @@ public class BrushController : MonoBehaviour {
 	{
 		RaycastHit hit;
 		int layerMask = 1 << LayerMask.NameToLayer ("PolyObjectSelected");
-		if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity, layerMask))
+		bool mouseHit = Physics.Raycast (Camera.main.ScreenPointToRay (Input.mousePosition), out hit, Mathf.Infinity, layerMask);
+		_currentShapeGo.SetActive (mouseHit);
+
+		if (!mouseHit)
 			return;
 		
 		MeshCollider meshCollider = hit.collider as MeshCollider;
 		if (meshCollider == null || meshCollider.sharedMesh == null)
 			return;
+
 		
 		Mesh mesh = meshCollider.sharedMesh;
 		Vector3[] vertices = mesh.vertices;
@@ -127,26 +142,52 @@ public class BrushController : MonoBehaviour {
 		Collider cld = _brushShape == BrushShape.Cube ? cld_cube :
 			_brushShape == BrushShape.Cylinder ? cld_cylinder : cld_sphere;
 		var outside = Camera.main.transform.position; //new Vector3 (300, 300, 300);
-		if ( true) {
+		if ( Input.GetMouseButtonDown (0) || Input.GetMouseButton (0) ) {
 			for (int x = -len; x <= len; x++) {
 				for (int y = -len; y <= len; y++) {
 					for (int z = -len; z <= len; z++) {
 						Vector3 underTestPoint = transform.TransformPoint(centerVoxel.ToFloat () + new Vector3 (x, y, z));
 
 						if (Doge.IsColliderContainPoint (outside, underTestPoint, cld)) {
-							if (Input.GetMouseButtonDown (0) ) {
+							var key = new IntVector3(centerVoxel.x + x, centerVoxel.y + y, centerVoxel.z + z);
+							if (_brushVoxelPoolBefore.ContainsKey(key)){
+								_brushVoxelPoolBefore.Remove(key);
+							} 
+							_brushVoxelPoolAfter.Add(key, 0);
+							/*
 								if (_editorState.is_add){
 									_targetPolyObject.AddEditSpacePoint (centerVoxel.x + x, centerVoxel.y + y, centerVoxel.z + z);
 								} else {
 									_targetPolyObject.DeleteEditSpacePoint (centerVoxel.x + x, centerVoxel.y + y, centerVoxel.z + z);
 								}
-							}
+								*/
 						}
 					}
 				}
 			}
+
+			foreach(var k in _brushVoxelPoolBefore.Keys) {
+				_targetPolyObject.ConfigEditSpacePoint (k, _editorState.is_add);
+			}
+
+			_brushVoxelPoolBefore.Clear();
+			var tmpAfter = _brushVoxelPoolAfter;
+			_brushVoxelPoolAfter = _brushVoxelPoolBefore;
+			_brushVoxelPoolBefore = tmpAfter;
+			
 			_targetPolyObject.RefreshMesh ();
 		}
+
+		if (Input.GetMouseButtonUp (0)) {
+			foreach(var k in _brushVoxelPoolBefore.Keys) {
+				_targetPolyObject.ConfigEditSpacePoint (k, _editorState.is_add);
+			}
+			_brushVoxelPoolBefore.Clear();
+			_brushVoxelPoolAfter.Clear();
+			_targetPolyObject.RefreshMesh ();
+		}
+
+
 //		Debug.Log("brush march space, center = " + centerVoxel.ToString() + " len = " + len.ToString());
 		
 //		if (_shouldEmit && Input.GetMouseButton(0)) {
