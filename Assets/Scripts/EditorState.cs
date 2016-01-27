@@ -24,6 +24,8 @@ public class EditorState : MonoBehaviour {
 	private int _presetValue = 1;
 	private float _presetFillrate = 1f;
 
+	public bool is_extrude_newmat = false;
+
 	void Start()
 	{
 		_textEmit = GameObject.Find ("TextEmit").GetComponent<Text> ();
@@ -123,6 +125,7 @@ public class EditorState : MonoBehaviour {
 		var oldMode = _editMode;
 		_editMode = value == 0 ? EditMode.BRUSH : EditMode.EXTRUDE;
 		_polyWorldController.SetExtruding (value == 1);
+		_brushController.OnExtrudeClear ();
 	}
 
 	public void OnClickExtrudePositive()
@@ -138,5 +141,10 @@ public class EditorState : MonoBehaviour {
 	public void OnClickExtrudeClear()
 	{
 		_brushController.OnExtrudeClear ();
+	}
+
+	public void OnToggleExtrudeNewMat(bool v)
+	{
+		is_extrude_newmat = v;
 	}
 }

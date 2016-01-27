@@ -253,6 +253,7 @@ public class PolyObjectController : MonoBehaviour {
 	
 	public void RefreshMesh()
 	{
+		Debug.Log ("refresh mesh");
 		List<IntVector3> keys = new List<IntVector3> (_segments.Keys);
 
 		foreach (var k in keys) {
@@ -838,7 +839,7 @@ public class PolyObjectController : MonoBehaviour {
 
 	public void CopyVoxel(IntVector3 src, IntVector3 des)
 	{
-		Debug.Log ("copy voxel from " + src.ToString () + " to " + des.ToString ());
+//		Debug.Log ("copy voxel from " + src.ToString () + " to " + des.ToString ());
 		SetEditSpacePoint (des.x, des.y, des.z, 
 		                   GetEditSpacePoint(src.x, src.y, src.z));
 	}

@@ -263,6 +263,7 @@ public class BrushController : MonoBehaviour {
 			}
 		} else {
 			// ** extrude **
+			if (Input.GetKey("v")) {
 			if (Input.GetMouseButtonDown (0) || Input.GetMouseButton (0)) {
 				for (int x = -len; x <= len; x++) {
 					for (int y = -len; y <= len; y++) {
@@ -280,6 +281,7 @@ public class BrushController : MonoBehaviour {
 			}
 
 			RefreshExtruderPosition();
+			}
 			
 		}
 	}
@@ -321,7 +323,11 @@ public class BrushController : MonoBehaviour {
 				                            pp.y + _extrudeDirection.y * len,
 				                            pp.z + _extrudeDirection.z * len);
 				if (_editorState.is_add) {
-					_targetPolyObject.CopyVoxel(pp, nVoxel);
+					if (_editorState.is_extrude_newmat) {
+						_targetPolyObject.ConfigEditSpacePoint(nVoxel, true);
+					} else {
+						_targetPolyObject.CopyVoxel(pp, nVoxel);
+					}
 				} else {
 					_targetPolyObject.DeleteVoxel(pp);
 				}
@@ -340,4 +346,5 @@ public class BrushController : MonoBehaviour {
 		_extrudeVoxelPool.Clear ();
 		RefreshExtruderPosition ();
 	}
+
 }
