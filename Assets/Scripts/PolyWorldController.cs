@@ -159,6 +159,15 @@ public class PolyWorldController : MonoBehaviour, IRuntimeTranslationCallBack{
 		go.GetComponent<MeshRenderer> ().enabled = isShow;
 	}
 
+
+	public void SetExtruding(bool ison)
+	{
+		foreach (var go in _polyObjects.Values) {
+			go.GetComponent<PolyObjectController>().SetExtruding(ison);
+		}
+	}
+
+
 	public void OnRTEnter()
 	{
 		Debug.Log ("On rt enter");

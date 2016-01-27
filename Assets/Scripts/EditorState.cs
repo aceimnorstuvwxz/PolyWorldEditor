@@ -122,6 +122,7 @@ public class EditorState : MonoBehaviour {
 	{
 		var oldMode = _editMode;
 		_editMode = value == 0 ? EditMode.BRUSH : EditMode.EXTRUDE;
+		_polyWorldController.SetExtruding (value == 1);
 	}
 
 	public void OnClickExtrudePositive()
@@ -132,5 +133,10 @@ public class EditorState : MonoBehaviour {
 	public void OnClickExtrudeNegative()
 	{
 		_brushController.OnExtrude (-1);
+	}
+
+	public void OnClickExtrudeClear()
+	{
+		_brushController.OnExtrudeClear ();
 	}
 }

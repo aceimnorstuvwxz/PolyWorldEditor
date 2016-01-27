@@ -22,6 +22,7 @@ public class PolyObjectController : MonoBehaviour {
 
 	private BrushController _brushController;
 
+
 	int MyDivision(int a, int b)
 	{
 		int s = a / b;
@@ -178,7 +179,7 @@ public class PolyObjectController : MonoBehaviour {
 		Destroy (go);
 	}
 	
-	int GetEditSpacePoint(int x, int y, int z)
+	public int GetEditSpacePoint(int x, int y, int z)
 	{
 		var index = WorldPosition2SegmentIndex (x, y, z);
 		var point = WorldPosition2SegmentPosition (x, y, z);
@@ -758,6 +759,7 @@ public class PolyObjectController : MonoBehaviour {
 
 	private bool _flagShowOutline = false;
 	private bool _flagTranslation = false;
+	private bool _flagExtruding = false;
 	void RefreshMaterialSetting()
 	{
 		if (_segments != null) {
@@ -772,7 +774,7 @@ public class PolyObjectController : MonoBehaviour {
 		mat_normal.mainTexture = _materialsController.GetPaletteTexture ();
 
 		var render = seg.GetComponent<MeshRenderer> ();
-		if (_flagTranslation) {
+		if (_flagTranslation || _flagExtruding) {
 			seg.GetComponent<MeshRenderer> ().materials = new Material[]{mat_translation};
 		} else if (_flagShowOutline) {
 			seg.GetComponent<MeshRenderer> ().materials = new Material[]{mat_normal, mat_out_line};
@@ -796,6 +798,12 @@ public class PolyObjectController : MonoBehaviour {
 		if (isSelected && _brushController != null ) {
 			_brushController.SetTargetPolyObject(gameObject);
 		}
+	}
+
+	public void SetExtruding(bool isExtruding)
+	{
+		_flagExtruding = isExtruding;
+		RefreshMaterialSetting ();
 	}
 
 	public void SetTranslation(bool isTranslation)

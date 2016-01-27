@@ -37,6 +37,8 @@ public class BrushController : MonoBehaviour {
 
 	private Dictionary<IntVector3, int > _extrudeVoxelPool;
 
+	private PolyObjectController _extrudeSelectionObj;
+
 	
 	public void SetTargetPolyObject(GameObject obj)
 	{
@@ -81,6 +83,8 @@ public class BrushController : MonoBehaviour {
 
 	void Start () 
 	{
+
+		_extrudeSelectionObj = GameObject.Find ("GizmoObject").GetComponent<PolyObjectController> ();
 		_extrudeVoxelPool =  new Dictionary<IntVector3, int> (new IntVector3.EqualityComparer ());
 		_brushVoxelPoolAfter = new Dictionary<IntVector3, int> (new IntVector3.EqualityComparer ());
 		_brushVoxelPoolBefore = new Dictionary<IntVector3, int> (new IntVector3.EqualityComparer ());
@@ -102,6 +106,18 @@ public class BrushController : MonoBehaviour {
 		{
 			MouseExtrudeSelection();
 			MouseBrush();
+		}
+
+
+		if (Input.GetKeyDown ("n")) {
+			OnExtrude(1);
+		}
+		if (Input.GetKeyDown ("m")) {
+			OnExtrude(-1);
+		}
+		
+		if (Input.GetKeyDown ("b")) {
+			OnExtrudeClear();
 		}
 	}
 
@@ -253,10 +269,10 @@ public class BrushController : MonoBehaviour {
 						for (int z = -len; z <= len; z++) {
 							Vector3 underTestPoint = transform.TransformPoint (centerVoxel.ToFloat () + new Vector3 (x, y, z));
 							
-							if (Doge.IsColliderContainPoint (outside, underTestPoint, cld)) {
+							if (Doge.IsColliderContainPoint (outside, underTestPoint, cld) ) {
 								var key = new IntVector3 (centerVoxel.x + x, centerVoxel.y + y, centerVoxel.z + z);
-
-								_extrudeVoxelPool[key] = 1;
+								if (_targetPolyObject.GetEditSpacePoint(key.x, key.y, key.z) > 0)
+									_extrudeVoxelPool[key] = 1;
 							}
 						}
 					}
@@ -277,7 +293,20 @@ public class BrushController : MonoBehaviour {
 			}
 			var p = sum / _extrudeVoxelPool.Count;
 			go_extruder.transform.localPosition = p;
+//			_extrudeSelectionObj.transform.localPosition = p;
 		}
+		RefreshExtruderSelectionObject ();
+	}
+
+
+
+	void RefreshExtruderSelectionObject()
+	{
+		_extrudeSelectionObj.ClearA ();
+		foreach(var pp in _extrudeVoxelPool.Keys){
+			_extrudeSelectionObj.ConfigEditSpacePoint(pp, true);
+		}
+		_extrudeSelectionObj.RefreshMesh ();
 	}
 
 	public void OnExtrude(int len)
@@ -288,9 +317,9 @@ public class BrushController : MonoBehaviour {
 			Debug.Log("extrude " + len.ToString());
 
 			foreach(var pp in _extrudeVoxelPool.Keys) {
-				var nVoxel = new IntVector3(pp.x + _extrudeDirection.x, 
-				                            pp.y + _extrudeDirection.y,
-				                            pp.z + _extrudeDirection.z);
+				var nVoxel = new IntVector3(pp.x + _extrudeDirection.x * len, 
+				                            pp.y + _extrudeDirection.y * len,
+				                            pp.z + _extrudeDirection.z * len);
 				if (_editorState.is_add) {
 					_targetPolyObject.CopyVoxel(pp, nVoxel);
 				} else {
@@ -304,5 +333,11 @@ public class BrushController : MonoBehaviour {
 			_extrudeVoxelPool = newPool;
 			RefreshExtruderPosition ();
 		}
+	}
+
+	public void OnExtrudeClear()
+	{
+		_extrudeVoxelPool.Clear ();
+		RefreshExtruderPosition ();
 	}
 }
