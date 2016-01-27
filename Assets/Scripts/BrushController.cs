@@ -8,6 +8,18 @@ public class BrushController : MonoBehaviour {
 	public GameObject goc_sphere;
 	public GameObject goc_cube;
 
+
+	public GameObject go_ex_x0;
+	public GameObject go_ex_x1;
+	public GameObject go_ex_y0;
+	public GameObject go_ex_y1;
+	public GameObject go_ex_z0;
+	public GameObject go_ex_z1;
+
+
+
+	public GameObject go_extruder;
+
 	private Collider cld_cylinder;
 	private Collider cld_sphere;
 	private Collider cld_cube;
@@ -22,6 +34,8 @@ public class BrushController : MonoBehaviour {
 	private EditorState _editorState;
 	private Dictionary<IntVector3, int> _brushVoxelPoolBefore;
 	private Dictionary<IntVector3, int> _brushVoxelPoolAfter;
+
+	private Dictionary<IntVector3, int > _extrudeVoxelPool;
 
 	
 	public void SetTargetPolyObject(GameObject obj)
@@ -67,6 +81,7 @@ public class BrushController : MonoBehaviour {
 
 	void Start () 
 	{
+		_extrudeVoxelPool =  new Dictionary<IntVector3, int> (new IntVector3.EqualityComparer ());
 		_brushVoxelPoolAfter = new Dictionary<IntVector3, int> (new IntVector3.EqualityComparer ());
 		_brushVoxelPoolBefore = new Dictionary<IntVector3, int> (new IntVector3.EqualityComparer ());
 
@@ -82,7 +97,10 @@ public class BrushController : MonoBehaviour {
 	
 	void Update () 
 	{
-		if (_targetPolyObject != null && _targetPolyObject.IsEditable ()) {
+		if (_targetPolyObject != null &&
+		    _targetPolyObject.IsEditable ()) 
+		{
+			MouseExtrudeSelection();
 			MouseBrush();
 		}
 	}
@@ -101,8 +119,47 @@ public class BrushController : MonoBehaviour {
 		goc_sphere.transform.localRotation = q;
 	}
 
+	private IntVector3 _extrudeDirection = new IntVector3(0,0,0);
+	void MouseExtrudeSelection()
+	{
+		if (_editorState.GetEditMode () == EditorState.EditMode.BRUSH)
+			return;
+
+		if (Input.GetMouseButtonDown (0)) {
+			if (Doge.IsMouseOn (go_ex_x0)) {
+				_extrudeDirection = new IntVector3 (1, 0, 0);
+				Debug.Log ("x0");
+			}
+			if (Doge.IsMouseOn (go_ex_x1)) {
+				_extrudeDirection = new IntVector3 (-1, 0, 0);
+				Debug.Log ("x1");
+			}
+			if (Doge.IsMouseOn (go_ex_y0)) {
+				_extrudeDirection = new IntVector3 (0, 1, 0);
+				Debug.Log ("y0");
+			}
+			if (Doge.IsMouseOn (go_ex_y1)) {
+				_extrudeDirection = new IntVector3 (0, -1, 0);
+				Debug.Log ("y1");
+				
+			}
+			if (Doge.IsMouseOn (go_ex_z0)) {
+				_extrudeDirection = new IntVector3 (0, 0, 1);
+				Debug.Log ("z0");
+				
+			}
+			if (Doge.IsMouseOn (go_ex_z1)) {
+				_extrudeDirection = new IntVector3 (0, 0, -1);
+				Debug.Log ("z1");
+				
+			}
+		}
+	}
 	void MouseBrush()
 	{
+
+		go_extruder.SetActive (_editorState.GetEditMode() == EditorState.EditMode.EXTRUDE);
+
 		RaycastHit hit;
 		int layerMask = 1 << LayerMask.NameToLayer ("PolyObjectSelected");
 		bool mouseHit = Physics.Raycast (Camera.main.ScreenPointToRay (Input.mousePosition), out hit, Mathf.Infinity, layerMask);
@@ -142,63 +199,110 @@ public class BrushController : MonoBehaviour {
 		Collider cld = _brushShape == BrushShape.Cube ? cld_cube :
 			_brushShape == BrushShape.Cylinder ? cld_cylinder : cld_sphere;
 		var outside = Camera.main.transform.position; //new Vector3 (300, 300, 300);
-		if ( Input.GetMouseButtonDown (0) || Input.GetMouseButton (0) ) {
-			for (int x = -len; x <= len; x++) {
-				for (int y = -len; y <= len; y++) {
-					for (int z = -len; z <= len; z++) {
-						Vector3 underTestPoint = transform.TransformPoint(centerVoxel.ToFloat () + new Vector3 (x, y, z));
 
-						if (Doge.IsColliderContainPoint (outside, underTestPoint, cld)) {
-							var key = new IntVector3(centerVoxel.x + x, centerVoxel.y + y, centerVoxel.z + z);
-							if (_brushVoxelPoolBefore.ContainsKey(key)){
-								_brushVoxelPoolBefore.Remove(key);
-							} 
-							_brushVoxelPoolAfter.Add(key, 0);
-							/*
+		if (_editorState.GetEditMode () == EditorState.EditMode.BRUSH) {
+			if (Input.GetMouseButtonDown (0) || Input.GetMouseButton (0)) {
+				for (int x = -len; x <= len; x++) {
+					for (int y = -len; y <= len; y++) {
+						for (int z = -len; z <= len; z++) {
+							Vector3 underTestPoint = transform.TransformPoint (centerVoxel.ToFloat () + new Vector3 (x, y, z));
+
+							if (Doge.IsColliderContainPoint (outside, underTestPoint, cld)) {
+								var key = new IntVector3 (centerVoxel.x + x, centerVoxel.y + y, centerVoxel.z + z);
+								if (_brushVoxelPoolBefore.ContainsKey (key)) {
+									_brushVoxelPoolBefore.Remove (key);
+								} 
+								_brushVoxelPoolAfter.Add (key, 0);
+								/*
 								if (_editorState.is_add){
 									_targetPolyObject.AddEditSpacePoint (centerVoxel.x + x, centerVoxel.y + y, centerVoxel.z + z);
 								} else {
 									_targetPolyObject.DeleteEditSpacePoint (centerVoxel.x + x, centerVoxel.y + y, centerVoxel.z + z);
 								}
 								*/
+							}
+						}
+					}
+				}
+
+				foreach (var k in _brushVoxelPoolBefore.Keys) {
+					_targetPolyObject.ConfigEditSpacePoint (k, _editorState.is_add);
+				}
+
+				_brushVoxelPoolBefore.Clear ();
+				var tmpAfter = _brushVoxelPoolAfter;
+				_brushVoxelPoolAfter = _brushVoxelPoolBefore;
+				_brushVoxelPoolBefore = tmpAfter;
+			
+				_targetPolyObject.RefreshMesh ();
+			}
+
+			if (Input.GetMouseButtonUp (0)) {
+				foreach (var k in _brushVoxelPoolBefore.Keys) {
+					_targetPolyObject.ConfigEditSpacePoint (k, _editorState.is_add);
+				}
+				_brushVoxelPoolBefore.Clear ();
+				_brushVoxelPoolAfter.Clear ();
+				_targetPolyObject.RefreshMesh ();
+			}
+		} else {
+			// ** extrude **
+			if (Input.GetMouseButtonDown (0) || Input.GetMouseButton (0)) {
+				for (int x = -len; x <= len; x++) {
+					for (int y = -len; y <= len; y++) {
+						for (int z = -len; z <= len; z++) {
+							Vector3 underTestPoint = transform.TransformPoint (centerVoxel.ToFloat () + new Vector3 (x, y, z));
+							
+							if (Doge.IsColliderContainPoint (outside, underTestPoint, cld)) {
+								var key = new IntVector3 (centerVoxel.x + x, centerVoxel.y + y, centerVoxel.z + z);
+
+								_extrudeVoxelPool[key] = 1;
+							}
 						}
 					}
 				}
 			}
 
-			foreach(var k in _brushVoxelPoolBefore.Keys) {
-				_targetPolyObject.ConfigEditSpacePoint (k, _editorState.is_add);
-			}
+			RefreshExtruderPosition();
+			
+		}
+	}
 
-			_brushVoxelPoolBefore.Clear();
-			var tmpAfter = _brushVoxelPoolAfter;
-			_brushVoxelPoolAfter = _brushVoxelPoolBefore;
-			_brushVoxelPoolBefore = tmpAfter;
+	void RefreshExtruderPosition()
+	{
+		if (_extrudeVoxelPool.Count > 0) {
+			Vector3 sum = Vector3.zero;
+			foreach (var ip in _extrudeVoxelPool.Keys) {
+				sum += ip.ToFloat ();
+			}
+			var p = sum / _extrudeVoxelPool.Count;
+			go_extruder.transform.localPosition = p;
+		}
+	}
+
+	public void OnExtrude(int len)
+	{
+		if (_editorState.GetEditMode() == EditorState.EditMode.EXTRUDE) {
+			
+			var newPool = new Dictionary<IntVector3, int> (new IntVector3.EqualityComparer ());
+			Debug.Log("extrude " + len.ToString());
+
+			foreach(var pp in _extrudeVoxelPool.Keys) {
+				var nVoxel = new IntVector3(pp.x + _extrudeDirection.x, 
+				                            pp.y + _extrudeDirection.y,
+				                            pp.z + _extrudeDirection.z);
+				if (_editorState.is_add) {
+					_targetPolyObject.CopyVoxel(pp, nVoxel);
+				} else {
+					_targetPolyObject.DeleteVoxel(pp);
+				}
+				newPool.Add(nVoxel, 1);
+			}
 			
 			_targetPolyObject.RefreshMesh ();
+			
+			_extrudeVoxelPool = newPool;
+			RefreshExtruderPosition ();
 		}
-
-		if (Input.GetMouseButtonUp (0)) {
-			foreach(var k in _brushVoxelPoolBefore.Keys) {
-				_targetPolyObject.ConfigEditSpacePoint (k, _editorState.is_add);
-			}
-			_brushVoxelPoolBefore.Clear();
-			_brushVoxelPoolAfter.Clear();
-			_targetPolyObject.RefreshMesh ();
-		}
-
-
-//		Debug.Log("brush march space, center = " + centerVoxel.ToString() + " len = " + len.ToString());
-		
-//		if (_shouldEmit && Input.GetMouseButton(0)) {
-//			_shouldEmit = false;
-//			
-//			if (_editorState.is_add) {
-//				AddBrush(localPoint, localNormal, 0);
-//			} else {
-//				SubBrush(localPoint, localNormal, 0);
-//			}
-//		}
-
 	}
 }

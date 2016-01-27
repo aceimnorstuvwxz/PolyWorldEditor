@@ -4,6 +4,13 @@ using System.Collections;
 public class Doge {
 
 
+	public static bool IsMouseOn(GameObject go)
+	{
+		RaycastHit hit;
+		Collider cld = go.GetComponent<MeshCollider> ();
+		return cld.Raycast (Camera.main.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity);
+	}
+
 	public static bool ColliderLineCast(Collider collider, Vector3 src, Vector3 des, out RaycastHit hit)
 	{
 		return  collider.Raycast (new Ray (src, des-src), out hit, (des - src).magnitude);

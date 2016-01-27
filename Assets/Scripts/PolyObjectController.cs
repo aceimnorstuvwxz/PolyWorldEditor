@@ -207,7 +207,6 @@ public class PolyObjectController : MonoBehaviour {
 	private MarchingCubesEngine _marchingCubesEngine;
 	void Start () 
 	{
-
 		_brushController = GameObject.Find ("Brush").GetComponent<BrushController> ();
 		_segments = new Dictionary<IntVector3, GameObject> (new IntVector3.EqualityComparer ());
 		_marchingCubesEngine = GameObject.Find ("MarchingCubesEngine").GetComponent<MarchingCubesEngine> ();
@@ -259,13 +258,8 @@ public class PolyObjectController : MonoBehaviour {
 			_segments[k].GetComponent<PolyObjectSegment>().RefreshMesh();
 		}
 	}
-	
-	int GetVoxelPointMaterial(int voxelRelativeIndex, int x, int y, int z)
-	{
-		IntVector3 diffPos = VoxelPointPosition(voxelRelativeIndex);
-		int materialIndex = GetEditSpacePoint(x + diffPos.x, y + diffPos.y, z + diffPos.z);
-		return materialIndex;
-	}
+
+
 
 	
 	IntVector3 VoxelPointPosition(int voxelPointIndex) {
@@ -799,7 +793,7 @@ public class PolyObjectController : MonoBehaviour {
 			}
 		}
 
-		if (isSelected && _brushController != null) {
+		if (isSelected && _brushController != null ) {
 			_brushController.SetTargetPolyObject(gameObject);
 		}
 	}
@@ -831,5 +825,18 @@ public class PolyObjectController : MonoBehaviour {
 			}
 		}
 		RefreshMesh ();
+	}
+
+
+	public void CopyVoxel(IntVector3 src, IntVector3 des)
+	{
+		Debug.Log ("copy voxel from " + src.ToString () + " to " + des.ToString ());
+		SetEditSpacePoint (des.x, des.y, des.z, 
+		                   GetEditSpacePoint(src.x, src.y, src.z));
+	}
+
+	public void DeleteVoxel(IntVector3 point)
+	{
+		SetEditSpacePoint (point.x, point.y, point.z, 0);
 	}
 }

@@ -110,4 +110,27 @@ public class EditorState : MonoBehaviour {
 		_brushController.SetBrushSize (_brushWidth, _brushHeight);
 		text_brush_height.GetComponent<Text> ().text = ((int)(value)).ToString ();
 	}
+
+	public enum EditMode { BRUSH, EXTRUDE};
+	private EditMode _editMode = EditMode.BRUSH;
+	public EditMode GetEditMode()
+	{
+		return _editMode;
+	}
+
+	public void OnEditModeChange(int value)
+	{
+		var oldMode = _editMode;
+		_editMode = value == 0 ? EditMode.BRUSH : EditMode.EXTRUDE;
+	}
+
+	public void OnClickExtrudePositive()
+	{
+		_brushController.OnExtrude (1);
+	}
+
+	public void OnClickExtrudeNegative()
+	{
+		_brushController.OnExtrude (-1);
+	}
 }
